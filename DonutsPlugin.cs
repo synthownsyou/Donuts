@@ -21,7 +21,7 @@ using SPT.Reflection.Patching;
 
 namespace Donuts;
 
-[BepInPlugin("com.dvize.Donuts", "Donuts", "4.0.1")]
+[BepInPlugin("com.dvize.Donuts", "Donuts", "4.0.2")]
 [BepInDependency("com.dvize.DonutsDependencyChecker")]
 [BepInDependency("com.fika.core", BepInDependency.DependencyFlags.SoftDependency)]
 public class DonutsPlugin : BaseUnityPlugin
