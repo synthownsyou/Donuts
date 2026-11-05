@@ -28,7 +28,6 @@ public sealed class DependencyCheckerPlugin : BaseUnityPlugin
 	private DependencyInfo[] _hardDependencies =
 	[
 		new("xyz.drakia.waypoints", "Drakia's Waypoints", new Version("0.0.0")),
-		new("com.Arys.UnityToolkit", "UnityToolkit", new Version("1.3.0")),
 	];
 	
 	private static bool s_canShowErrorDialog;
