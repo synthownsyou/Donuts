@@ -36,7 +36,7 @@ public class BotZoneGroupsDictionaryPatches
 			out BotsGroup group,
 			bool isBossOrFollower)
 		{
-			if (__instance.TryGetValue(zone, out BotZoneGroupData botZoneGroupData))
+			if (__instance.TryGetValue(zone, out BotZoneGroups botZoneGroupData))
 			{
 				BotsGroup botsGroup = botZoneGroupData.Group(isBossOrFollower, spawnType);
 				if (botsGroup != null && !botsGroup.Locked)

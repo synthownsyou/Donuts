@@ -1,3 +1,6 @@
+// Entire patch disabled - was [DisablePatch] in previous version, and LocationSettings.Location
+// type reference cannot be resolved at compile time in SPT 4.1. Needs investigation if re-enabling.
+#if false
 using Cysharp.Text;
 using EFT;
 using HarmonyLib;
@@ -14,32 +17,29 @@ namespace Donuts.Patches;
 /// TODO: Allow customizing AdditionalHostilitySettings in-game with Donuts without needing to restart game
 /// </summary>
 [UsedImplicitly]
-// [DisablePatch] - attribute removed in SPT 4.1
 public class ModifyBotHostilitySettingsPatch : ModulePatch
 {
-	// private static readonly WildSpawnType[] _emptySpawnTypes = [];
-	
 	protected override MethodBase GetTargetMethod()
 	{
 		Type targetType = typeof(BaseLocalGame<EftGamePlayerOwner>);
 		return AccessTools.Property(targetType, "Location_0").GetSetMethod();
 	}
-	
+
 	[PatchPostfix]
 	private static void PatchPostfix(LocationSettings.Location ___location_0)
 	{
 		AdditionalHostilitySettings[] hostilitySettings =
 			___location_0.BotLocationModifier?.AdditionalHostilitySettings;
-		
+
 		if (hostilitySettings == null) return;
-		
+
 		foreach (AdditionalHostilitySettings setting in hostilitySettings)
 		{
 			if (setting.BotRole != WildSpawnType.pmcBEAR && setting.BotRole != WildSpawnType.pmcUSEC)
 			{
 				continue;
 			}
-			
+
 #if DEBUG
 			using Utf8ValueStringBuilder sb = ZString.CreateUtf8StringBuilder();
 			sb.AppendFormat("BotRole: {0}\n", setting.BotRole);
@@ -68,16 +68,6 @@ public class ModifyBotHostilitySettingsPatch : ModulePatch
 			}
 			Logger.LogDebug(sb.ToString());
 #endif
-			
-			// if (setting.BotRole == WildSpawnType.pmcBEAR)
-			// {
-			// 	ModifyBearSettings(setting);
-			// }
-			// else if (setting.BotRole == WildSpawnType.pmcUSEC)
-			// {
-			// 	ModifyUsecSettings(setting);
-			// }
-			// setting.ChancedEnemies = [];
 		}
 	}
 
@@ -130,3 +120,4 @@ public class ModifyBotHostilitySettingsPatch : ModulePatch
 		];
 	}
 }
+#endif

@@ -23,7 +23,7 @@ internal static class DonutsHelper
 	
 	static DonutsHelper()
 	{
-		_random = new Random(unchecked((int)EFTDateTimeClass.Now.Ticks));
+		_random = new Random(unchecked((int)DateTime.UtcNow.Ticks));
 		
 		var loggerBuilder = new DonutsLoggerBuilder();
 		_modNotificationLogger = loggerBuilder.SetLoggingLevel(LogLevel.Info)
@@ -123,7 +123,7 @@ internal static class DonutsHelper
 	{
 		try
 		{
-			NotificationManagerClass.DisplayMessageNotification(message, ENotificationDurationType.Long, iconType, color);
+			NotificationManager.DisplayMessageNotification(message, ENotificationDurationType.Long, iconType, color);
 		}
 		catch (Exception ex)
 		{

@@ -9,6 +9,7 @@ using Donuts.Spawning.Services;
 using Donuts.Tools;
 using Donuts.Utils;
 using EFT;
+using EFT.Ballistics;
 using EFT.UI;
 using JetBrains.Annotations;
 using System;
@@ -39,7 +40,7 @@ public class DonutsRaidManager : MonoBehaviourSingleton<DonutsRaidManager>
 	private IBotDespawnController _botDespawnController;
 	
 	private static readonly Action<DamageInfo, EBodyPart, float> s_takingDamageCombatCooldownAction = TakingDamageCombatCooldown;
-	private static readonly PlayerDeadOrUnspawnHandler s_disposePlayerSubscriptionsAction = DisposePlayerSubscriptions;
+	private static readonly OnPlayerDeadOrUnspawn s_disposePlayerSubscriptionsAction = DisposePlayerSubscriptions;
 	
 	internal const int INITIAL_SERVICES_COUNT = 3;
 	private const int MS_DELAY_BEFORE_STARTING_BOTS_SPAWN = 2000;
@@ -266,7 +267,7 @@ public class DonutsRaidManager : MonoBehaviourSingleton<DonutsRaidManager>
 		}
 		else
 		{
-			Singleton<MenuUI>.Instance.MatchmakerTimeHasCome.method_7(data.message, data.progress);
+			Singleton<MenuUI>.Instance.MatchmakerTimeHasCome.ChangeStatus(data.message, data.progress);
 		}
 	}
 	
@@ -356,7 +357,7 @@ public class DonutsRaidManager : MonoBehaviourSingleton<DonutsRaidManager>
 			return;
 		}
 		
-		BotMemoryClass memory = bot.Memory;
+		BotMemory memory = bot.Memory;
 		EnemyInfo goalEnemy = memory.GoalEnemy;
 		ReadOnlyCollection<Player> humanPlayers = raidManager.BotConfigService.GetHumanPlayerList();
 		for (int i = humanPlayers.Count - 1; i >= 0; i--)

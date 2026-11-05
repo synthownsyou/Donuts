@@ -14,7 +14,7 @@ namespace Donuts.Patches.NullRefFixes;
 [UsedImplicitly]
 internal class ShootDataNullRefPatch : ModulePatch
 {
-	protected override MethodBase GetTargetMethod() => AccessTools.Method(typeof(ShootData), nameof(ShootData.method_0));
+	protected override MethodBase GetTargetMethod() => AccessTools.Method(typeof(ShootData), nameof(ShootData.ManualUpdate));
 	
 	[PatchPrefix]
 	private static bool PatchPrefix(ShootData __instance, BotOwner ____owner)

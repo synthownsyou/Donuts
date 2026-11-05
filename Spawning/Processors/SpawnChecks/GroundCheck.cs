@@ -9,7 +9,7 @@ public class GroundCheck : SpawnCheckProcessorBase
 	public override bool Process(Vector3 spawnPoint)
 	{
 		var ray = new Ray(spawnPoint, Vector3.down);
-		bool isNearGround = Physics.Raycast(ray, 10f, LayerMaskClass.HighPolyWithTerrainMask);
+		bool isNearGround = Physics.Raycast(ray, 10f, LayersMaskController.HighPolyWithTerrainMask);
 		
 		if (DefaultPluginVars.debugLogging.Value && !isNearGround)
 		{

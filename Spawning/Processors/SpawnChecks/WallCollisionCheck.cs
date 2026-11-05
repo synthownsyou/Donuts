@@ -12,7 +12,7 @@ public class WallCollisionCheck : SpawnCheckProcessorBase
 	public override bool Process(Vector3 spawnPoint)
 	{
 		int size = Physics.OverlapBoxNonAlloc(spawnPoint, _boxCheckScale, _spawnCheckColliderBuffer,
-			Quaternion.identity, LayerMaskClass.LowPolyColliderLayer);
+			Quaternion.identity, LayersMaskController.LowPolyColliderLayer);
 		
 		if (size <= 0)
 		{

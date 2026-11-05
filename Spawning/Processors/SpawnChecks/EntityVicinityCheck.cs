@@ -107,8 +107,8 @@ public class EntityVicinityCheck(
 		Vector3 playerHeadDirection = playerHead.Position - spawnPosition;
 		
 		bool isInLineOfSight = Physics.Raycast(spawnPosition, playerHeadDirection, out RaycastHit hitInfo,
-				playerHeadDirection.magnitude, LayerMaskClass.HighPolyWithTerrainMask) &&
-			hitInfo.collider == playerHead.Collider.Collider;
+				playerHeadDirection.magnitude, LayersMaskController.HighPolyWithTerrainMask) &&
+			hitInfo.collider == HarmonyLib.AccessTools.Field(typeof(EnemyPart), "_bodyPartCollider").GetValue(playerHead) is BodyPartCollider bpc && hitInfo.collider == bpc.Collider;
 		
 		if (DefaultPluginVars.debugLogging.Value && isInLineOfSight)
 		{

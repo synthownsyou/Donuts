@@ -15,7 +15,7 @@ public class NotificationLoggerProcessor(
 	{
 		try
 		{
-			NotificationManagerClass.DisplayMessageNotification(data.message, durationType, iconType, _textColor);
+			NotificationManager.DisplayMessageNotification(data.message, durationType, iconType, _textColor);
 		}
 		catch (Exception ex)
 		{

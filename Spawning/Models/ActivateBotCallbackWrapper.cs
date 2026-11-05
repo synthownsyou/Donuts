@@ -36,7 +36,7 @@ public class ActivateBotCallbackWrapper([NotNull] BotSpawner botSpawner, [NotNul
 		// BSG wants a stopwatch, we'll give em a stopwatch
 		// TODO: transpile patch out the stopwatch
 		// iirc SPT 3.11 patches out the stopwatch, needs double checking
-		botSpawner.method_11(bot, botData, null, shallBeGroup, s_stopwatch);
+		botSpawner.ActivateBotCallback(bot, botData, null, shallBeGroup, s_stopwatch);
 		
 		if (DefaultPluginVars.debugLogging.Value)
 		{
@@ -60,9 +60,9 @@ public class ActivateBotCallbackWrapper([NotNull] BotSpawner botSpawner, [NotNul
 		// This is normally performed in BotSpawner::GetGroupAndSetEnemies(BotOwner, BotZone)
 		else
 		{
-			botSpawner.method_5(bot);
+			botSpawner.SetBotAsEnemy(bot);
 		}
-		
+
 		_membersCount++;
 		
 		if (DefaultPluginVars.debugLogging.Value)
@@ -104,8 +104,8 @@ public class ActivateBotCallbackWrapper([NotNull] BotSpawner botSpawner, [NotNul
 		// Get a list of this bot's enemies
 		List<BotOwner> enemies = GetEnemies(bot);
 		// Check and add bot to other groups' allies or enemies list
-		botSpawner.method_5(bot);
-		
+		botSpawner.SetBotAsEnemy(bot);
+
 		var allPlayers = (List<Player>)s_allPlayersField.GetValue(botSpawner);
 		var botsGroup = new BotsGroup(zone, botSpawner.BotGame, bot, enemies, _deadBodiesController, allPlayers,
 			forBoss: isBossOrFollower);

@@ -35,9 +35,9 @@ public class BotCreationDataPatches
 			AccessTools.Method(s_targetType, nameof(BotCreationData.GetPosition));
 		
 		[PatchPrefix]
-		private static bool PatchPrefix(ref SpawnPointParams __result, List<SpawnPointParams> ___list_0)
+		private static bool PatchPrefix(ref PositionNote __result, List<PositionNote> ____positions)
 		{
-			__result = ___list_0.PickRandomElement();
+			__result = ____positions.PickRandomElement();
 			return false;
 		}
 	}
@@ -62,10 +62,10 @@ public class BotCreationDataPatches
 			for (var i = 0; i < profileCount; i++)
 			{
 				Profile profile = profiles2Select[i];
-				ProfileInfoSettingsClass profileSettings = profile.Info.Settings;
-				
-				if (profileSettings.Role == __instance.wildSpawnType_0 &&
-					profileSettings.BotDifficulty == __instance.botDifficulty_0)
+				var profileSettings = profile.Info.Settings;
+
+				if (profileSettings.Role == __instance.Role &&
+					profileSettings.BotDifficulty == __instance.BotDifficulty)
 				{
 					list.Add(profile);
 				}

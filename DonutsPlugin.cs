@@ -17,6 +17,7 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 using Donuts.Compat;
+using SPT.Reflection.Patching;
 
 namespace Donuts;
 
@@ -67,8 +68,8 @@ public class DonutsPlugin : BaseUnityPlugin
 		s_toggleGUIKey = Config.Bind("Config Settings", "Key To Enable/Disable Config Interface",
 			new KeyboardShortcut(KeyCode.F9), "Key to Enable/Disable Donuts Configuration Menu");
 		
-		PatchManager = new PatchManager(CurrentAssembly);
-		PatchManager.EnableAllPatches();
+		PatchManager = new PatchManager("com.dvize.Donuts", "Donuts");
+		PatchManager.EnablePatches();
 		
 		ConsoleScreen.Processor.RegisterCommandGroup<SpawnCommands>();
 		

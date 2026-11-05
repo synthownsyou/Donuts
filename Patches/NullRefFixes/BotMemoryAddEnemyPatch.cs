@@ -12,7 +12,7 @@ namespace Donuts.Patches.NullRefFixes;
 [UsedImplicitly]
 internal class BotMemoryAddEnemyPatch : ModulePatch
 {
-	protected override MethodBase GetTargetMethod() => AccessTools.Method(typeof(BotMemoryClass), nameof(BotMemoryClass.AddEnemy));
+	protected override MethodBase GetTargetMethod() => AccessTools.Method(typeof(BotMemory), nameof(BotMemory.AddEnemy));
 
 	[PatchPrefix]
 	private static bool PatchPrefix(IPlayer enemy)

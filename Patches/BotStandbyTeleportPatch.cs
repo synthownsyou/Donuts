@@ -28,7 +28,7 @@ internal class BotStandbyTeleportPatch : ModulePatch
 		
 		if (___standByType == BotStandByType.goToSave)
 		{
-			__instance.method_1();
+			__instance.DoStay();
 		}
 		
 		return false;

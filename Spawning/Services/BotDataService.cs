@@ -245,7 +245,7 @@ public abstract class BotDataService : IBotDataService, ICancellable
 			CancellationToken timeoutToken = _timeoutController.Timeout(s_timeout);
 			_sharedToken = timeoutToken;
 			
-			var botProfileData = new BotProfileRequestData(side, wildSpawnType, difficulty, 0f);
+			var botProfileData = new GetProfileDataParams(side, wildSpawnType, difficulty, 0f, default, false);
 			var botCreationData = await BotCreationData.Create(botProfileData, _botCreator, groupSize, token: this);
 			
 			_sharedToken = cancellationToken;
