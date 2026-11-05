@@ -15,7 +15,7 @@ using System.Globalization;
 using System.Threading;
 using UnityEngine;
 using UnityEngine.AI;
-using UnityToolkit.Structures.EventBus;
+using Donuts.Compat;
 
 namespace Donuts.Spawning.Services;
 
@@ -220,13 +220,13 @@ public abstract class BotSpawnService : IBotSpawnService
 		_botsController.CoversData.GetClosest(position)?.CorePointInGame;
 	
 	private void ActivateBotAtPosition(
-		[NotNull] BotCreationDataClass botData,
+		[NotNull] BotCreationData botData,
 		Vector3 spawnPosition,
 		CancellationToken cancellationToken = default)
 	{
 		int groupCount = botData.Count;
 		
-		// Add spawn point to the BotCreationDataClass
+		// Add spawn point to the BotCreationData
 		BotZone closestBotZone = _eftBotSpawner.GetClosestZone(spawnPosition, out _);
 		AICorePoint closestCorePoint = GetClosestCorePoint(spawnPosition);
 		botData.AddPosition(spawnPosition, closestCorePoint!.Id);

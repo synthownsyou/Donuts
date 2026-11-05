@@ -7,8 +7,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Systems.Effects;
 using UnityEngine;
-using UnityToolkit.Extensions;
-using UnityToolkit.Structures.EventBus;
+using Donuts.Compat;
 
 namespace Donuts.Spawning.Services;
 

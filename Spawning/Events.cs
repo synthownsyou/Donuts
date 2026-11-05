@@ -1,7 +1,7 @@
 using EFT;
 using JetBrains.Annotations;
 using System;
-using UnityToolkit.Structures.EventBus;
+using Donuts.Compat;
 
 namespace Donuts.Spawning;
 

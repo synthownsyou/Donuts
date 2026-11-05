@@ -7,12 +7,12 @@ using JetBrains.Annotations;
 using SPT.Reflection.Patching;
 using System;
 using System.Reflection;
-using UnityToolkit.Utils;
+using Donuts.Compat;
 
 namespace Donuts.Patches;
 
 [UsedImplicitly]
-[DisablePatch]
+// [DisablePatch] - attribute removed in SPT 4.1
 internal class GetFikaGameTypePatch : ModulePatch
 {
 	internal static Type FikaGameType { get; private set; }

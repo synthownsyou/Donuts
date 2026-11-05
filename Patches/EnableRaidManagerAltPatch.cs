@@ -9,7 +9,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using UnityToolkit.Utils;
+using Donuts.Compat;
 
 namespace Donuts.Patches;
 

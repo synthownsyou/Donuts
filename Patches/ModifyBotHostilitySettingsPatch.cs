@@ -6,7 +6,7 @@ using SPT.Reflection.Patching;
 using System;
 using System.Linq;
 using System.Reflection;
-using UnityToolkit.Utils;
+using Donuts.Compat;
 
 namespace Donuts.Patches;
 
@@ -14,7 +14,7 @@ namespace Donuts.Patches;
 /// TODO: Allow customizing AdditionalHostilitySettings in-game with Donuts without needing to restart game
 /// </summary>
 [UsedImplicitly]
-[DisablePatch]
+// [DisablePatch] - attribute removed in SPT 4.1
 public class ModifyBotHostilitySettingsPatch : ModulePatch
 {
 	// private static readonly WildSpawnType[] _emptySpawnTypes = [];
@@ -26,7 +26,7 @@ public class ModifyBotHostilitySettingsPatch : ModulePatch
 	}
 	
 	[PatchPostfix]
-	private static void PatchPostfix(LocationSettingsClass.Location ___location_0)
+	private static void PatchPostfix(LocationSettings.Location ___location_0)
 	{
 		AdditionalHostilitySettings[] hostilitySettings =
 			___location_0.BotLocationModifier?.AdditionalHostilitySettings;

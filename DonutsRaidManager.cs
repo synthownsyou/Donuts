@@ -16,8 +16,7 @@ using System.Collections;
 using System.Collections.ObjectModel;
 using System.Threading;
 using UnityEngine;
-using UnityToolkit.Structures.DependencyInjection;
-using UnityToolkit.Structures.EventBus;
+using Donuts.Compat;
 
 #pragma warning disable CS0252, CS0253
 
@@ -35,14 +34,12 @@ public class DonutsRaidManager : MonoBehaviourSingleton<DonutsRaidManager>
 	private CancellationToken _onDestroyToken;
 	
 	private DonutsGizmos _donutsGizmos;
-	private EventBusInitializer _eventBusInitializer;
-	
 	private IBotDataController _botDataController;
 	private IBotSpawnController _botSpawnController;
 	private IBotDespawnController _botDespawnController;
 	
-	private static readonly Action<DamageInfoStruct, EBodyPart, float> s_takingDamageCombatCooldownAction = TakingDamageCombatCooldown;
-	private static readonly GDelegate70 s_disposePlayerSubscriptionsAction = DisposePlayerSubscriptions;
+	private static readonly Action<DamageInfo, EBodyPart, float> s_takingDamageCombatCooldownAction = TakingDamageCombatCooldown;
+	private static readonly PlayerDeadOrUnspawnHandler s_disposePlayerSubscriptionsAction = DisposePlayerSubscriptions;
 	
 	internal const int INITIAL_SERVICES_COUNT = 3;
 	private const int MS_DELAY_BEFORE_STARTING_BOTS_SPAWN = 2000;
@@ -106,8 +103,6 @@ public class DonutsRaidManager : MonoBehaviourSingleton<DonutsRaidManager>
 		_botDespawnController = new BotDespawnController(_dependencyContainer);
 		
 		_donutsGizmos = new DonutsGizmos(_onDestroyToken);
-		_eventBusInitializer = new EventBusInitializer(DonutsPlugin.CurrentAssembly);
-		_eventBusInitializer.Initialize();
 		
 		_gameWorld.OnPersonAdd += SubscribeHumanPlayerEventHandlers;
 		_eftBotSpawner.OnBotCreated += EftBotSpawner_OnBotCreated;
@@ -181,7 +176,7 @@ public class DonutsRaidManager : MonoBehaviourSingleton<DonutsRaidManager>
 		}
 		
 		_botDataController?.Dispose();
-		_eventBusInitializer?.ClearAllBuses();
+		EventBus.Clear();
 		
 		OnDestroyTokenSource?.Cancel();
 		OnDestroyTokenSource?.Dispose();
@@ -388,7 +383,7 @@ public class DonutsRaidManager : MonoBehaviourSingleton<DonutsRaidManager>
 		}
 	}
 	
-	internal static void TakingDamageCombatCooldown(DamageInfoStruct info, EBodyPart part, float arg3)
+	internal static void TakingDamageCombatCooldown(DamageInfo info, EBodyPart part, float arg3)
 	{
 		switch (info.DamageType)
 		{

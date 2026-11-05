@@ -1,6 +1,6 @@
 using Donuts.Spawning.Models;
 using UnityEngine;
-using UnityToolkit.Structures;
+using Donuts.Compat;
 
 namespace Donuts.Spawning.Processors;
 

@@ -1,21 +1,21 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  
+
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <RootNamespace>Donuts</RootNamespace>
     <AssemblyName>Donuts</AssemblyName>
     <Deterministic>true</Deterministic>
-    <Configurations>Debug;Release;SPT Release;Fika Release</Configurations>
+    <Configurations>Debug;Release</Configurations>
     <Platforms>AnyCPU</Platforms>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>portable</DebugType>
-    <Optimize>true</Optimize>
+    <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
@@ -24,138 +24,156 @@
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
-    <LangVersion>latest</LangVersion>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'SPT Release|AnyCPU'">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>portable</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <LangVersion>latest</LangVersion>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Fika Release|AnyCPU'">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>portable</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
     <Reference Include="0Harmony">
-      <HintPath>E:\SPT-3.11\BepInEx\core\0Harmony.dll</HintPath>
+      <HintPath>Libs\0Harmony.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="Assembly-CSharp">
-      <HintPath>E:\SPT-3.11\EscapeFromTarkov_Data\Managed\Assembly-CSharp.dll</HintPath>
+      <HintPath>Libs\Assembly-CSharp.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="BepInEx">
-      <HintPath>E:\SPT-3.11\BepInEx\core\BepInEx.dll</HintPath>
+      <HintPath>Libs\BepInEx.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="bsg.console.core">
-      <HintPath>E:\SPT-3.11\EscapeFromTarkov_Data\Managed\bsg.console.core.dll</HintPath>
+      <HintPath>Libs\bsg.console.core.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="Comfort">
-      <HintPath>E:\SPT-3.11\EscapeFromTarkov_Data\Managed\Comfort.dll</HintPath>
+      <HintPath>Libs\Comfort.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="DissonanceVoip">
-      <HintPath>E:\SPT-3.11\EscapeFromTarkov_Data\Managed\DissonanceVoip.dll</HintPath>
+      <HintPath>Libs\DissonanceVoip.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="DOTween">
-      <HintPath>E:\SPT-3.11\EscapeFromTarkov_Data\Managed\DOTween.dll</HintPath>
+      <HintPath>Libs\DOTween.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="DOTween.Modules">
-      <HintPath>E:\SPT-3.11\EscapeFromTarkov_Data\Managed\DOTween.Modules.dll</HintPath>
+      <HintPath>Libs\DOTween.Modules.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json">
-      <HintPath>E:\SPT-3.11\EscapeFromTarkov_Data\Managed\Newtonsoft.Json.dll</HintPath>
+      <HintPath>Libs\Newtonsoft.Json.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="Sirenix.Serialization">
-      <HintPath>E:\SPT-3.11\EscapeFromTarkov_Data\Managed\Sirenix.Serialization.dll</HintPath>
+      <HintPath>Libs\Sirenix.Serialization.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="spt-common">
-      <HintPath>E:\SPT-3.11\BepInEx\plugins\spt\spt-common.dll</HintPath>
+      <HintPath>Libs\spt-common.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="spt-core">
-      <HintPath>E:\SPT-3.11\BepInEx\plugins\spt\spt-core.dll</HintPath>
+      <HintPath>Libs\spt-core.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="spt-prepatch">
-      <HintPath>E:\SPT-3.11\BepInEx\patchers\spt-prepatch.dll</HintPath>
+      <HintPath>Libs\spt-prepatch.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="spt-reflection">
-      <HintPath>E:\SPT-3.11\BepInEx\plugins\spt\spt-reflection.dll</HintPath>
+      <HintPath>Libs\spt-reflection.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="spt-singleplayer">
-      <HintPath>E:\SPT-3.11\BepInEx\plugins\spt\spt-singleplayer.dll</HintPath>
+      <HintPath>Libs\spt-singleplayer.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="UniTask">
-      <HintPath>E:\SPT-3.11\BepInEx\plugins\UnityToolkit\UniTask.dll</HintPath>
+      <HintPath>Libs\UniTask.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="UniTask.DOTween">
-      <HintPath>E:\SPT-3.11\BepInEx\plugins\UnityToolkit\UniTask.DOTween.dll</HintPath>
+      <HintPath>Libs\UniTask.DOTween.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="UniTask.Linq">
-      <HintPath>E:\SPT-3.11\BepInEx\plugins\UnityToolkit\UniTask.Linq.dll</HintPath>
+      <HintPath>Libs\UniTask.Linq.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="UniTask.TextMeshPro">
-      <HintPath>E:\SPT-3.11\BepInEx\plugins\UnityToolkit\UniTask.TextMeshPro.dll</HintPath>
+      <HintPath>Libs\UniTask.TextMeshPro.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="Unity.Burst">
-      <HintPath>E:\SPT-3.11\EscapeFromTarkov_Data\Managed\Unity.Burst.dll</HintPath>
+      <HintPath>Libs\Unity.Burst.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="Unity.Collections">
-      <HintPath>E:\SPT-3.11\BepInEx\plugins\UnityToolkit\Unity.Collections.dll</HintPath>
+      <HintPath>Libs\Unity.Collections.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="Unity.Mathematics">
-      <HintPath>E:\SPT-3.11\EscapeFromTarkov_Data\Managed\Unity.Mathematics.dll</HintPath>
+      <HintPath>Libs\Unity.Mathematics.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="Unity.TextMeshPro">
-      <HintPath>E:\SPT-3.11\EscapeFromTarkov_Data\Managed\Unity.TextMeshPro.dll</HintPath>
+      <HintPath>Libs\Unity.TextMeshPro.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine">
-      <HintPath>E:\SPT-3.11\EscapeFromTarkov_Data\Managed\UnityEngine.dll</HintPath>
+      <HintPath>Libs\UnityEngine.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine.AIModule">
-      <HintPath>E:\SPT-3.11\EscapeFromTarkov_Data\Managed\UnityEngine.AIModule.dll</HintPath>
+      <HintPath>Libs\UnityEngine.AIModule.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine.AssetBundleModule">
-      <HintPath>E:\SPT-3.11\EscapeFromTarkov_Data\Managed\UnityEngine.AssetBundleModule.dll</HintPath>
+      <HintPath>Libs\UnityEngine.AssetBundleModule.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine.CoreModule">
-      <HintPath>E:\SPT-3.11\EscapeFromTarkov_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+      <HintPath>Libs\UnityEngine.CoreModule.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine.ImageConversionModule">
-      <HintPath>E:\SPT-3.11\EscapeFromTarkov_Data\Managed\UnityEngine.ImageConversionModule.dll</HintPath>
+      <HintPath>Libs\UnityEngine.ImageConversionModule.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine.IMGUIModule">
-      <HintPath>E:\SPT-3.11\EscapeFromTarkov_Data\Managed\UnityEngine.IMGUIModule.dll</HintPath>
+      <HintPath>Libs\UnityEngine.IMGUIModule.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine.InputLegacyModule">
-      <HintPath>E:\SPT-3.11\EscapeFromTarkov_Data\Managed\UnityEngine.InputLegacyModule.dll</HintPath>
+      <HintPath>Libs\UnityEngine.InputLegacyModule.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine.PhysicsModule">
-      <HintPath>E:\SPT-3.11\EscapeFromTarkov_Data\Managed\UnityEngine.PhysicsModule.dll</HintPath>
+      <HintPath>Libs\UnityEngine.PhysicsModule.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine.TextRenderingModule">
-      <HintPath>E:\SPT-3.11\EscapeFromTarkov_Data\Managed\UnityEngine.TextRenderingModule.dll</HintPath>
+      <HintPath>Libs\UnityEngine.TextRenderingModule.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine.UI">
-      <HintPath>E:\SPT-3.11\EscapeFromTarkov_Data\Managed\UnityEngine.UI.dll</HintPath>
+      <HintPath>Libs\UnityEngine.UI.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine.UIModule">
-      <HintPath>E:\SPT-3.11\EscapeFromTarkov_Data\Managed\UnityEngine.UIModule.dll</HintPath>
+      <HintPath>Libs\UnityEngine.UIModule.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine.UnityWebRequestModule">
-      <HintPath>E:\SPT-3.11\EscapeFromTarkov_Data\Managed\UnityEngine.UnityWebRequestModule.dll</HintPath>
+      <HintPath>Libs\UnityEngine.UnityWebRequestModule.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="UnityToolkit">
-      <HintPath>E:\SPT-3.11\BepInEx\plugins\UnityToolkit\UnityToolkit.dll</HintPath>
+      <HintPath>Libs\UnityToolkit.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="ZString">
-      <HintPath>E:\SPT-3.11\BepInEx\plugins\UnityToolkit\ZString.dll</HintPath>
+      <HintPath>Libs\ZString.dll</HintPath>
+      <Private>false</Private>
     </Reference>
   </ItemGroup>
 
@@ -173,9 +191,5 @@
   <ItemGroup>
     <EmbeddedResource Remove="FikaBridge\**" />
   </ItemGroup>
-
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="if not exist &quot;E:\SPT-3.11\BepInEx\plugins\Donuts&quot; (&#xA;    mkdir &quot;E:\SPT-3.11\BepInEx\plugins\Donuts&quot;&#xA;)&#xA;copy &quot;$(TargetPath)&quot; &quot;E:\SPT-3.11\BepInEx\plugins\Donuts\$(TargetName).dll&quot;&#xA;&#xA;if &quot;$(ConfigurationName)&quot;==&quot;Debug&quot; (&#xA;    if exist &quot;$(TargetDir)$(TargetName).pdb&quot; (&#xA;        copy &quot;$(TargetDir)$(TargetName).pdb&quot; &quot;E:\SPT-3.11\BepInEx\plugins\Donuts\$(TargetName).pdb&quot;&#xA;    ) else (&#xA;        echo Debug symbols not found!&#xA;    )&#xA;) else (&#xA;    if exist &quot;E:\SPT-3.11\BepInEx\plugins\Donuts\$(TargetName).pdb&quot; (&#xA;        del &quot;E:\SPT-3.11\BepInEx\plugins\Donuts\$(TargetName).pdb&quot;&#xA;    )&#xA;)" />
-  </Target>
 
 </Project>

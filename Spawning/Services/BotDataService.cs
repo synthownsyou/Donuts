@@ -12,7 +12,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using UnityEngine;
-using UnityToolkit.Structures.EventBus;
+using Donuts.Compat;
 using Random = UnityEngine.Random;
 
 namespace Donuts.Spawning.Services;
@@ -246,7 +246,7 @@ public abstract class BotDataService : IBotDataService, ICancellable
 			_sharedToken = timeoutToken;
 			
 			var botProfileData = new BotProfileRequestData(side, wildSpawnType, difficulty, 0f);
-			var botCreationData = await BotCreationDataClass.Create(botProfileData, _botCreator, groupSize, token: this);
+			var botCreationData = await BotCreationData.Create(botProfileData, _botCreator, groupSize, token: this);
 			
 			_sharedToken = cancellationToken;
 			

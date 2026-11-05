@@ -363,3 +363,6 @@ MigrationBackup/
 FodyWeavers.xsd
 
 .idea/**
+
+# Uncomment to exclude Libs from version control (then you must populate it in CI another way)
+# Libs/

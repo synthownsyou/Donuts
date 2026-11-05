@@ -2,7 +2,7 @@ using Cysharp.Text;
 using Donuts.Spawning.Models;
 using Donuts.Utils;
 using UnityEngine;
-using UnityToolkit.Structures.EventBus;
+using Donuts.Compat;
 
 namespace Donuts.Spawning.Processors;
 
@@ -13,7 +13,7 @@ public class PlayerCombatStateCheck : WaveSpawnProcessorBase
 	public PlayerCombatStateCheck()
 	{
 		var binding = new EventBinding<PlayerEnteredCombatEvent>(ResetTimer);
-		EventBus<PlayerEnteredCombatEvent>.Register(binding);
+		EventBus.Register(binding);
 	}
 	
 	public override bool Process(BotWave data)

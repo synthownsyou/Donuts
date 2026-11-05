@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
-using UnityToolkit.Structures.DependencyInjection;
+using Donuts.Compat;
 
 namespace Donuts.Spawning.Controllers;
 

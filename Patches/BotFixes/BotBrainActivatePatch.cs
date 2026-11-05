@@ -4,7 +4,7 @@ using HarmonyLib;
 using JetBrains.Annotations;
 using SPT.Reflection.Patching;
 using System.Reflection;
-using UnityToolkit.Structures.EventBus;
+using Donuts.Compat;
 
 namespace Donuts.Patches.BotFixes;
 

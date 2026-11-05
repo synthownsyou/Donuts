@@ -16,7 +16,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
-using UnityToolkit.Utils;
+using Donuts.Compat;
 
 namespace Donuts;
 
@@ -37,7 +37,7 @@ public class DonutsPlugin : BaseUnityPlugin
 	private bool _isWritingToFile;
 	
 	public new static ManualLogSource Logger { get; private set; }
-	internal static ModulePatchManager ModulePatchManager { get; private set; }
+	internal static PatchManager PatchManager { get; private set; }
 	internal static string DirectoryPath { get; private set; }
 	internal static Assembly CurrentAssembly { get; private set; }
 	internal static bool FikaEnabled { get; private set; }
@@ -67,8 +67,8 @@ public class DonutsPlugin : BaseUnityPlugin
 		s_toggleGUIKey = Config.Bind("Config Settings", "Key To Enable/Disable Config Interface",
 			new KeyboardShortcut(KeyCode.F9), "Key to Enable/Disable Donuts Configuration Menu");
 		
-		ModulePatchManager = new ModulePatchManager(CurrentAssembly);
-		ModulePatchManager.EnableAllPatches();
+		PatchManager = new PatchManager(CurrentAssembly);
+		PatchManager.EnableAllPatches();
 		
 		ConsoleScreen.Processor.RegisterCommandGroup<SpawnCommands>();
 		

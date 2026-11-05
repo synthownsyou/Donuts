@@ -4,7 +4,7 @@ using EFT;
 using EFT.Console.Core;
 using EFT.UI;
 using System.Collections.Generic;
-using UnityToolkit.Extensions;
+using Donuts.Compat;
 
 namespace Donuts.Spawning.Utils;
 

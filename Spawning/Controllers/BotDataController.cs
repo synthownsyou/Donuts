@@ -7,8 +7,7 @@ using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using UnityToolkit.Structures.DependencyInjection;
-using UnityToolkit.Structures.EventBus;
+using Donuts.Compat;
 
 namespace Donuts.Spawning.Controllers;
 

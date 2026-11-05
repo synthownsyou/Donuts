@@ -1,0 +1,41 @@
+name: Build Donuts
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Verify Libs directory
+        run: |
+          if [ ! -d "Libs" ] || [ -z "$(ls -A Libs/*.dll 2>/dev/null)" ]; then
+            echo "ERROR: Libs/ directory is empty or missing."
+            echo "Run setup-libs.ps1 locally and commit the DLLs, or upload them."
+            exit 1
+          fi
+          echo "Found $(ls Libs/*.dll | wc -l) reference DLLs in Libs/"
+
+      - name: Restore packages
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build -c Release --no-restore
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Donuts
+          path: bin/Release/Donuts.dll

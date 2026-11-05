@@ -1,4 +1,4 @@
-using UnityToolkit.Structures;
+using Donuts.Compat;
 
 namespace Donuts.Utils.Logger;
 

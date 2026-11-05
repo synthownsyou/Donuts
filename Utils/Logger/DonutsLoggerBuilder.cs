@@ -1,6 +1,6 @@
 using EFT.Communications;
 using UnityEngine;
-using UnityToolkit.Structures;
+using Donuts.Compat;
 
 namespace Donuts.Utils.Logger;
 

@@ -10,20 +10,20 @@ using System.Reflection;
 
 namespace Donuts.Spawning.Models;
 
-public class ActivateBotCallbackWrapper([NotNull] BotSpawner botSpawner, [NotNull] BotCreationDataClass botData)
+public class ActivateBotCallbackWrapper([NotNull] BotSpawner botSpawner, [NotNull] BotCreationData botData)
 {
 	private static readonly FieldInfo s_deadBodiesControllerField = AccessTools.Field(typeof(BotSpawner), "_deadBodiesController");
 	private static readonly FieldInfo s_botsField = AccessTools.Field(typeof(BotSpawner), "_bots");
 	private static readonly FieldInfo s_allPlayersField = AccessTools.Field(typeof(BotSpawner), "_allPlayers");
 	private static readonly FieldInfo s_freeForAllField = AccessTools.Field(typeof(BotSpawner), "_freeForAll");
-	// (BotOwner bot, BotCreationDataClass data, Action<BotOwner> callback, bool shallBeGroup, Stopwatch stopWatch)
+	// (BotOwner bot, BotCreationData data, Action<BotOwner> callback, bool shallBeGroup, Stopwatch stopWatch)
 	
 	private static readonly Stopwatch s_stopwatch = new();
 	
 	private BotsGroup _group;
 	private int _membersCount;
 	private readonly DeadBodiesController _deadBodiesController = (DeadBodiesController)s_deadBodiesControllerField.GetValue(botSpawner);
-	private readonly BotsClass _bots = (BotsClass)s_botsField.GetValue(botSpawner);
+	private readonly BotsList _bots = (BotsList)s_botsField.GetValue(botSpawner);
 	private readonly bool _freeForAll = (bool)s_freeForAllField.GetValue(botSpawner);
 	
 	/// <summary>

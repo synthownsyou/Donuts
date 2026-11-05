@@ -4,11 +4,11 @@ using System;
 namespace Donuts.Spawning.Models;
 
 public class PrepBotInfo(
-	[NotNull] BotCreationDataClass botCreationData,
+	[NotNull] BotCreationData botCreationData,
 	BotDifficulty difficulty,
 	int groupSize = 1)
 {
-	public readonly BotCreationDataClass botCreationData = botCreationData;
+	public readonly BotCreationData botCreationData = botCreationData;
 	public readonly BotDifficulty difficulty = difficulty;
 	public readonly int groupSize = groupSize;
 	public readonly Key key = new(difficulty, groupSize);

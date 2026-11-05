@@ -3,7 +3,7 @@ using Donuts.Utils;
 using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
-using UnityToolkit.Structures.DependencyInjection;
+using Donuts.Compat;
 
 namespace Donuts.Spawning.Controllers;
 
