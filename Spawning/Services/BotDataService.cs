@@ -39,7 +39,7 @@ public interface IBotDataService : IServiceSpawnType, IDisposable
 	BotDifficulty GetBotDifficulty();
 }
 
-public abstract class BotDataService : IBotDataService, ICancellable
+public abstract class BotDataService : IBotDataService, ITokenGetter
 {
 	protected StartingBotConfig startingBotConfig;
 	protected readonly MapBotWaves mapBotWaves;
@@ -132,7 +132,7 @@ public abstract class BotDataService : IBotDataService, ICancellable
 	/// <remarks>
 	/// Should only be used for BSG's bot profile generation!
 	/// </remarks>
-	CancellationToken ICancellable.GetCancelToken()
+	CancellationToken ITokenGetter.GetCancelToken()
 	{
 		return _sharedToken;
 	}

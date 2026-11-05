@@ -24,7 +24,7 @@ namespace Donuts.Tools;
 public sealed class DependencyCheckerPlugin : BaseUnityPlugin
 {
 	private const float ERROR_WAITING_TIME = 60f;
-	private readonly Version _targetSptVersion = new("3.11.0");
+	private readonly Version _targetSptVersion = new("4.1.0");
 	private DependencyInfo[] _hardDependencies =
 	[
 		new("xyz.drakia.waypoints", "Drakia's Waypoints", new Version("0.0.0")),

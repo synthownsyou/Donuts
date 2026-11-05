@@ -1,9 +1,11 @@
 ﻿using Cysharp.Text;
 using Donuts.Utils;
 using EFT;
+using HarmonyLib;
 using JetBrains.Annotations;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Reflection;
 using UnityEngine;
 
 namespace Donuts.Spawning.Processors;
@@ -13,6 +15,7 @@ public class EntityVicinityCheck(
 	[NotNull] ReadOnlyCollection<Player> alivePlayers,
 	[CanBeNull] HashSet<WildSpawnType> botTypesToIgnore = null) : SpawnCheckProcessorBase
 {
+	private static readonly FieldInfo s_bodyPartColliderField = AccessTools.Field(typeof(EnemyPart), "_bodyPartCollider");
 	public override bool Process(Vector3 spawnPoint)
 	{
 		bool checkPlayerVicinityMin = DefaultPluginVars.globalMinSpawnDistanceFromPlayerBool.Value;
@@ -106,9 +109,11 @@ public class EntityVicinityCheck(
 		EnemyPart playerHead = player.MainParts[BodyPartType.head];
 		Vector3 playerHeadDirection = playerHead.Position - spawnPosition;
 		
-		bool isInLineOfSight = Physics.Raycast(spawnPosition, playerHeadDirection, out RaycastHit hitInfo,
+		var headCollider = s_bodyPartColliderField.GetValue(playerHead) as BodyPartCollider;
+		bool isInLineOfSight = headCollider != null &&
+			Physics.Raycast(spawnPosition, playerHeadDirection, out RaycastHit hitInfo,
 				playerHeadDirection.magnitude, LayersMaskController.HighPolyWithTerrainMask) &&
-			hitInfo.collider == HarmonyLib.AccessTools.Field(typeof(EnemyPart), "_bodyPartCollider").GetValue(playerHead) is BodyPartCollider bpc && hitInfo.collider == bpc.Collider;
+			hitInfo.collider == headCollider.Collider;
 		
 		if (DefaultPluginVars.debugLogging.Value && isInLineOfSight)
 		{
