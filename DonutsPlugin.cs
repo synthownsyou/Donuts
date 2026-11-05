@@ -10,7 +10,7 @@ using Donuts.Tools;
 using EFT.UI;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
-using System.Collections;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -43,19 +43,30 @@ public class DonutsPlugin : BaseUnityPlugin
 	internal static Assembly CurrentAssembly { get; private set; }
 	internal static bool FikaEnabled { get; private set; }
 	
-	private void Awake()
+	private async void Awake()
 	{
-		StartCoroutine(WaitForDependencyChecker());
-	}
-	
-	private IEnumerator WaitForDependencyChecker()
-	{
-		var waitForEndOfFrame = new WaitForEndOfFrame();
-		while (!DependencyCheckerPlugin.ValidationSuccess)
+		try
 		{
-			yield return waitForEndOfFrame;
+			InitializePlugin();
+			await SetupScenariosUI();
+			s_pluginGUIComponent = gameObject.AddComponent<PluginGUIComponent>();
+			DonutsConfiguration.ExportConfig();
+			_initComplete = true;
+			Logger.LogInfo("Donuts configuration interface initialized. Press F9 to open it.");
 		}
-		
+		catch (Exception ex)
+		{
+			base.Logger.LogError($"Failed to initialize Donuts: {ex}");
+		}
+	}
+
+	private void InitializePlugin()
+	{
+		if (!DependencyCheckerPlugin.ValidationSuccess)
+		{
+			throw new InvalidOperationException("Donuts dependency validation did not complete successfully.");
+		}
+
 		Logger = base.Logger;
 		CurrentAssembly = Assembly.GetExecutingAssembly();
 		string assemblyPath = CurrentAssembly.Location;
@@ -72,12 +83,6 @@ public class DonutsPlugin : BaseUnityPlugin
 		PatchManager.EnablePatches();
 		
 		ConsoleScreen.Processor.RegisterCommandGroup<SpawnCommands>();
-		
-		yield return SetupScenariosUI().ToCoroutine();
-		s_pluginGUIComponent = gameObject.AddComponent<PluginGUIComponent>();
-		DonutsConfiguration.ExportConfig();
-		
-		_initComplete = true;
 	}
 	
 	private void Update()
