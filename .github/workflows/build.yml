@@ -38,4 +38,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Donuts
-          path: bin/Release/Donuts.dll
+          path: bin/Release/netstandard2.1/Donuts.dll
