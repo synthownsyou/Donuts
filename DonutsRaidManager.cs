@@ -88,9 +88,17 @@ public class DonutsRaidManager : MonoBehaviourSingleton<DonutsRaidManager>
 		}
 		
 		base.Awake();
-		
+
 		_gameWorld = Singleton<GameWorld>.Instance;
 		_mainPlayer = _gameWorld.MainPlayer;
+
+		string mapId = _mainPlayer.Location.ToLower();
+		if (mapId is "labyrinth" or "icebreaker")
+		{
+			Logger.LogWarning($"Donuts does not support map '{mapId}', disabling for this raid.");
+			Destroy(this);
+			return;
+		}
 		_botsController = Singleton<IBotGame>.Instance.BotsController;
 		_eftBotSpawner = _botsController.BotSpawner;
 		

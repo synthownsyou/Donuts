@@ -34,8 +34,17 @@ jobs:
       - name: Build
         run: dotnet build Donuts.csproj -c Release --no-restore
 
+      - name: Package mod
+        run: |
+          mkdir -p artifact/Donuts
+          cp bin/Release/netstandard2.1/Donuts.dll artifact/Donuts/
+          cp ScenarioConfig.json artifact/Donuts/
+          cp RandomScenarioConfig.json artifact/Donuts/
+          cp -r Patterns artifact/Donuts/patterns
+          cp -r zoneSpawnPoints artifact/Donuts/
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: Donuts
-          path: bin/Release/netstandard2.1/Donuts.dll
+          path: artifact/Donuts/
