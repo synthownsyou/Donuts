@@ -79,7 +79,7 @@ public class DonutsPlugin : BaseUnityPlugin
 		s_toggleGUIKey = Config.Bind("Config Settings", "Key To Enable/Disable Config Interface",
 			new KeyboardShortcut(KeyCode.F9), "Key to Enable/Disable Donuts Configuration Menu");
 		
-		PatchManager = new PatchManager("com.dvize.Donuts", "Donuts");
+		PatchManager = new PatchManager("com.dvize.Donuts", "Donuts", autoPatch: true);
 		PatchManager.EnablePatches();
 		
 		ConsoleScreen.Processor.RegisterCommandGroup<SpawnCommands>();
