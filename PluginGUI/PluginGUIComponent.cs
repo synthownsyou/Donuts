@@ -8,9 +8,18 @@ namespace Donuts.PluginGUI;
 
 public class PluginGUIComponent : MonoBehaviour
 {
+	private const float ScreenMargin = 20f;
+	private const float LegacyWindowWidth = 1664f;
+	private const float LegacyWindowHeight = 936f;
+	private const float MinimumWindowWidth = 640f;
+	private const float MinimumWindowHeight = 480f;
+	private const float ScreenCoverage = 0.86f;
+
 	private bool _currentGuiState = DefaultPluginVars.ShowGUI;
 	private ISettingsPage _settingsPage;
 	private static bool s_stylesInitialized;
+	private int _lastScreenWidth;
+	private int _lastScreenHeight;
 
 	// InitializeStyles static properties
 	internal static GUIStyle WindowStyle { get; private set; }
@@ -52,6 +61,13 @@ public class PluginGUIComponent : MonoBehaviour
 
 	private void OnGUI()
 	{
+		if (_lastScreenWidth != Screen.width || _lastScreenHeight != Screen.height)
+		{
+			DefaultPluginVars.WindowRect = FitWindowRectToScreen(DefaultPluginVars.WindowRect);
+			_lastScreenWidth = Screen.width;
+			_lastScreenHeight = Screen.height;
+		}
+
 		if (!s_stylesInitialized)
 		{
 			InitializeStyles();
@@ -68,6 +84,7 @@ public class PluginGUIComponent : MonoBehaviour
 		GUISkin originalSkin = GUI.skin;
 
 		DefaultPluginVars.WindowRect = GUI.Window(123, DefaultPluginVars.WindowRect, MainWindowFunc, "", WindowStyle);
+		DefaultPluginVars.WindowRect = FitWindowRectToScreen(DefaultPluginVars.WindowRect);
 		GUI.FocusWindow(123);
 
 		if (Event.current.isMouse)
@@ -77,6 +94,46 @@ public class PluginGUIComponent : MonoBehaviour
 
 		// Restore the original GUI skin
 		GUI.skin = originalSkin;
+	}
+
+	internal static Rect CreateResponsiveWindowRect()
+	{
+		float availableWidth = Mathf.Max(300f, Screen.width - ScreenMargin * 2f);
+		float availableHeight = Mathf.Max(200f, Screen.height - ScreenMargin * 2f);
+		float minimumWidth = Mathf.Min(MinimumWindowWidth, availableWidth);
+		float minimumHeight = Mathf.Min(MinimumWindowHeight, availableHeight);
+		float width = Mathf.Clamp(Screen.width * ScreenCoverage, minimumWidth, availableWidth);
+		float height = Mathf.Clamp(Screen.height * ScreenCoverage, minimumHeight, availableHeight);
+
+		return new Rect(
+			(Screen.width - width) * 0.5f,
+			(Screen.height - height) * 0.5f,
+			width,
+			height
+		);
+	}
+
+	internal static Rect FitWindowRectToScreen(Rect rect, bool replaceLegacyDefault = false)
+	{
+		if (replaceLegacyDefault &&
+		    Mathf.Approximately(rect.width, LegacyWindowWidth) &&
+		    Mathf.Approximately(rect.height, LegacyWindowHeight))
+		{
+			return CreateResponsiveWindowRect();
+		}
+
+		float marginX = Mathf.Min(ScreenMargin, Screen.width * 0.05f);
+		float marginY = Mathf.Min(ScreenMargin, Screen.height * 0.05f);
+		float maxWidth = Mathf.Max(300f, Screen.width - marginX * 2f);
+		float maxHeight = Mathf.Max(200f, Screen.height - marginY * 2f);
+		float minWidth = Mathf.Min(MinimumWindowWidth, maxWidth);
+		float minHeight = Mathf.Min(MinimumWindowHeight, maxHeight);
+
+		rect.width = Mathf.Clamp(rect.width, minWidth, maxWidth);
+		rect.height = Mathf.Clamp(rect.height, minHeight, maxHeight);
+		rect.x = Mathf.Clamp(rect.x, marginX, Mathf.Max(marginX, Screen.width - rect.width - marginX));
+		rect.y = Mathf.Clamp(rect.y, marginY, Mathf.Max(marginY, Screen.height - rect.height - marginY));
+		return rect;
 	}
 		
 	private void Update()

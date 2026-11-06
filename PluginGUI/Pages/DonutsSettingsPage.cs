@@ -131,9 +131,9 @@ public class DonutsSettingsPage : TabContainerPage
 		{
 			Vector2 delta = Event.current.mousePosition - _resizeStartPos;
 			Rect rect = WindowRect;
-			rect.width = Mathf.Max(300, WindowRect.width + delta.x);
-			rect.height = Mathf.Max(200, WindowRect.height + delta.y);
-			WindowRect = rect;
+			rect.width = WindowRect.width + delta.x;
+			rect.height = WindowRect.height + delta.y;
+			WindowRect = PluginGUIComponent.FitWindowRectToScreen(rect);
 			_resizeStartPos = Event.current.mousePosition;
 			Event.current.Use();
 		}

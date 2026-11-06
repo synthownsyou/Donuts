@@ -1,5 +1,6 @@
 ﻿using Cysharp.Text;
 using Donuts.Models;
+using Donuts.PluginGUI;
 using Donuts.Utils;
 using HarmonyLib;
 using Newtonsoft.Json;
@@ -116,17 +117,16 @@ internal static class DonutsConfiguration
 		    settingsDictionary.TryGetValue("windowRectWidth", out object windowRectWidth) &&
 		    settingsDictionary.TryGetValue("windowRectHeight", out object windowRectHeight))
 		{
-			DefaultPluginVars.WindowRect = new Rect(
+			DefaultPluginVars.WindowRect = PluginGUIComponent.FitWindowRectToScreen(new Rect(
 				Convert.ToSingle(windowRectX),
 				Convert.ToSingle(windowRectY),
 				Convert.ToSingle(windowRectWidth),
 				Convert.ToSingle(windowRectHeight)
-			);
+			), replaceLegacyDefault: true);
 		}
 		else
 		{
-			// Apply default values if any of the windowRect values are missing
-			DefaultPluginVars.WindowRect = new Rect(20, 20, 1664, 936);
+			DefaultPluginVars.WindowRect = PluginGUIComponent.CreateResponsiveWindowRect();
 		}
 
 		// Ensure the arrays are initialized before creating the settings
