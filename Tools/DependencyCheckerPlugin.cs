@@ -20,7 +20,6 @@ namespace Donuts.Tools;
 [BepInPlugin("com.dvize.DonutsDependencyChecker", "Donuts Dependency Checker", "1.1.0")]
 [BepInDependency("com.SPT.core", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("xyz.drakia.waypoints", BepInDependency.DependencyFlags.SoftDependency)]
-[BepInDependency("com.Arys.UnityToolkit", BepInDependency.DependencyFlags.SoftDependency)]
 public sealed class DependencyCheckerPlugin : BaseUnityPlugin
 {
 	private const float ERROR_WAITING_TIME = 60f;

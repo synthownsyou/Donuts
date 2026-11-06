@@ -53,14 +53,8 @@
     <Reference Include="System.Core"/>
     <Reference Include="System.Data"/>
     <Reference Include="System.Xml"/>
-    <Reference Include="UniTask">
-      <HintPath>E:\SPT-3.10\BepInEx\plugins\UnityToolkit\UniTask.dll</HintPath>
-    </Reference>
-    <Reference Include="UniTask.Linq">
-      <HintPath>E:\SPT-3.10\BepInEx\plugins\UnityToolkit\UniTask.Linq.dll</HintPath>
-    </Reference>
     <Reference Include="Unity.Collections">
-      <HintPath>E:\SPT-3.10\BepInEx\plugins\UnityToolkit\Unity.Collections.dll</HintPath>
+      <HintPath>E:\SPT-3.10\EscapeFromTarkov_Data\Managed\Unity.Collections.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Mathematics">
       <HintPath>E:\SPT-3.10\EscapeFromTarkov_Data\Managed\Unity.Mathematics.dll</HintPath>
@@ -73,9 +67,6 @@
     </Reference>
     <Reference Include="UnityEngine.PhysicsModule">
       <HintPath>E:\SPT-3.10\EscapeFromTarkov_Data\Managed\UnityEngine.PhysicsModule.dll</HintPath>
-    </Reference>
-    <Reference Include="ZString">
-      <HintPath>E:\SPT-3.10\BepInEx\plugins\UnityToolkit\ZString.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

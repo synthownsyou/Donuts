@@ -1,7 +1,6 @@
 ﻿using BepInEx.Logging;
 using Comfort.Common;
 using Cysharp.Text;
-using Cysharp.Threading.Tasks;
 using Donuts.Spawning.Models;
 using Donuts.Spawning.Processors;
 using Donuts.Utils;
@@ -13,6 +12,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Threading;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AI;
 using Donuts.Compat;
@@ -21,8 +21,8 @@ namespace Donuts.Spawning.Services;
 
 public interface IBotSpawnService : IServiceSpawnType
 {
-	UniTask<bool> SpawnStartingBots(CancellationToken cancellationToken);
-	UniTask<bool> TrySpawnBotWave(CancellationToken cancellationToken);
+	Task<bool> SpawnStartingBots(CancellationToken cancellationToken);
+	Task<bool> TrySpawnBotWave(CancellationToken cancellationToken);
 }
 
 public abstract class BotSpawnService : IBotSpawnService
@@ -60,7 +60,7 @@ public abstract class BotSpawnService : IBotSpawnService
 		_waveSpawnProcessor.SetNext(new WaveSpawnChanceCheck());
 	}
 	
-	public async UniTask<bool> SpawnStartingBots(CancellationToken cancellationToken)
+	public async Task<bool> SpawnStartingBots(CancellationToken cancellationToken)
 	{
 		Queue<PrepBotInfo> startingBotsCache = dataService.StartingBotsCache;
 		
@@ -90,14 +90,14 @@ public abstract class BotSpawnService : IBotSpawnService
 			// Delay between spawns to improve performance
 			if (count > 0)
 			{
-				await UniTask.DelayFrame(FRAME_DELAY_INTERVAL, cancellationToken: cancellationToken);
+				await CoroutineTaskScheduler.DelayFrames(FRAME_DELAY_INTERVAL, cancellationToken);
 			}
 		}
 		
 		return startingBotsCache.Count == 0;
 	}
 	
-	public async UniTask<bool> TrySpawnBotWave(CancellationToken cancellationToken)
+	public async Task<bool> TrySpawnBotWave(CancellationToken cancellationToken)
 	{
 		BotWave wave = dataService.GetBotWaveToSpawn();
 		if (wave == null)
@@ -251,7 +251,7 @@ public abstract class BotSpawnService : IBotSpawnService
 		_botCreator.ActivateBot(botData, closestBotZone, false, groupAction, callback, cancellationToken);
 	}
 	
-	private async UniTask<bool> TrySpawnStartingBot(
+	private async Task<bool> TrySpawnStartingBot(
 		[NotNull] PrepBotInfo botSpawnInfo,
 		CancellationToken cancellationToken = default)
 	{
@@ -273,11 +273,11 @@ public abstract class BotSpawnService : IBotSpawnService
 			if (!positionOnNavMesh.HasValue)
 			{
 				failsafeCounter++;
-				await UniTask.DelayFrame(FRAME_DELAY_INTERVAL, cancellationToken: cancellationToken);
+				await CoroutineTaskScheduler.DelayFrames(FRAME_DELAY_INTERVAL, cancellationToken);
 				continue;
 			}
 			
-			await UniTask.Yield(cancellationToken);
+			await CoroutineTaskScheduler.NextFrame(cancellationToken);
 			if (cancellationToken.IsCancellationRequested) return false;
 			ActivateBotAtPosition(botSpawnInfo.botCreationData, positionOnNavMesh.Value, cancellationToken);
 			return true;
@@ -291,7 +291,7 @@ public abstract class BotSpawnService : IBotSpawnService
 		return false;
 	}
 	
-	private async UniTask<bool> TryProcessBotWave(BotWave wave, CancellationToken cancellationToken = default)
+	private async Task<bool> TryProcessBotWave(BotWave wave, CancellationToken cancellationToken = default)
 	{
 		ZoneSpawnPoints zoneSpawnPoints = dataService.ZoneSpawnPoints;
 		string[] waveZones = wave.Zones;
@@ -329,7 +329,7 @@ public abstract class BotSpawnService : IBotSpawnService
 		return await TrySpawnBotIfValidZone(randomZone, wave, zoneSpawnPoints, isHotspot, cancellationToken);
 	}
 
-	private async UniTask<bool> TrySpawnBotIfValidZone(
+	private async Task<bool> TrySpawnBotIfValidZone(
 		[NotNull] string zoneName,
 		[NotNull] BotWave wave,
 		[NotNull] ZoneSpawnPoints zoneSpawnPoints,
@@ -372,7 +372,7 @@ public abstract class BotSpawnService : IBotSpawnService
 		return false;
 	}
 	
-	private async UniTask<bool> TrySpawnBotIfValidZone(
+	private async Task<bool> TrySpawnBotIfValidZone(
 		ZoneSpawnPoints.KeywordZoneType keyword,
 		[NotNull] BotWave wave,
 		[NotNull] ZoneSpawnPoints zoneSpawnPoints,
@@ -468,7 +468,7 @@ public abstract class BotSpawnService : IBotSpawnService
 	/// <summary>
 	/// Checks certain spawn options, reset groups timers.
 	/// </summary>
-	private async UniTask<bool> TrySpawnBot(
+	private async Task<bool> TrySpawnBot(
 		[NotNull] BotWave wave,
 		Vector3 spawnPoint,
 		bool isHotspot,
@@ -502,7 +502,7 @@ public abstract class BotSpawnService : IBotSpawnService
 		return success;
 	}
 	
-	private async UniTask<bool> SpawnBot(
+	private async Task<bool> SpawnBot(
 		int groupSize,
 		Vector3 spawnPoint,
 		bool generateNew = true,
@@ -585,7 +585,7 @@ public abstract class BotSpawnService : IBotSpawnService
 		return true;
 	}
 	
-	private async UniTask<Vector3?> GetValidSpawnPosition(
+	private async Task<Vector3?> GetValidSpawnPosition(
 		Vector3 position,
 		[CanBeNull] SpawnCheckProcessorBase spawnChecker,
 		CancellationToken cancellationToken = default)
@@ -601,7 +601,7 @@ public abstract class BotSpawnService : IBotSpawnService
 			if (!NavMesh.SamplePosition(position, out NavMeshHit navHit, 2f, NavMesh.AllAreas) ||
 				(spawnChecker != null && !spawnChecker.Process(navHit.position)))
 			{
-				await UniTask.DelayFrame(FRAME_DELAY_INTERVAL, cancellationToken: cancellationToken);
+				await CoroutineTaskScheduler.DelayFrames(FRAME_DELAY_INTERVAL, cancellationToken);
 				continue;
 			}
 			

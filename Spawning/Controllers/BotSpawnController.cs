@@ -1,10 +1,10 @@
-using Cysharp.Threading.Tasks;
 using Donuts.Spawning.Services;
 using Donuts.Utils;
 using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using UnityEngine;
 using Donuts.Compat;
 
@@ -13,8 +13,8 @@ namespace Donuts.Spawning.Controllers;
 public interface IBotSpawnController
 {
 	void Initialize();
-	UniTask SpawnStartingBots(CancellationToken cancellationToken);
-	UniTask SpawnBotWaves(CancellationToken cancellationToken);
+	Task SpawnStartingBots(CancellationToken cancellationToken);
+	Task SpawnBotWaves(CancellationToken cancellationToken);
 }
 
 public class BotSpawnController([NotNull] DiContainer container) : IBotSpawnController
@@ -81,7 +81,7 @@ public class BotSpawnController([NotNull] DiContainer container) : IBotSpawnCont
 		}
 	}
 	
-	public async UniTask SpawnStartingBots(CancellationToken cancellationToken)
+	public async Task SpawnStartingBots(CancellationToken cancellationToken)
 	{
 		if (!_initialized ||
 			_hasSpawnedStartingBots ||
@@ -94,31 +94,37 @@ public class BotSpawnController([NotNull] DiContainer container) : IBotSpawnCont
 		_startingSpawnPrevTime = Time.time;
 		_startingSpawnOngoing = true;
 		_hasSpawnedStartingBots = true;
-		
-		for (int i = _spawnServices.Count - 1; i >= 0; i--)
+		try
 		{
-			IBotSpawnService service = _spawnServices[i];
-			
-			try
+			for (int i = _spawnServices.Count - 1; i >= 0; i--)
 			{
-				if (!await service.SpawnStartingBots(cancellationToken))
+				IBotSpawnService service = _spawnServices[i];
+				try
 				{
-					_hasSpawnedStartingBots = false;
+					if (!await service.SpawnStartingBots(cancellationToken))
+					{
+						_hasSpawnedStartingBots = false;
+					}
+
+					cancellationToken.ThrowIfCancellationRequested();
 				}
-				
-				if (cancellationToken.IsCancellationRequested) return;
-			}
-			catch (OperationCanceledException) {}
-			catch (Exception ex)
-			{
-				DonutsRaidManager.Logger.LogException(nameof(DonutsRaidManager), nameof(SpawnStartingBots), ex);
+				catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+				{
+					return;
+				}
+				catch (Exception ex)
+				{
+					DonutsRaidManager.Logger.LogException(nameof(DonutsRaidManager), nameof(SpawnStartingBots), ex);
+				}
 			}
 		}
-		
-		_startingSpawnOngoing = false;
+		finally
+		{
+			_startingSpawnOngoing = false;
+		}
 	}
 	
-	public async UniTask SpawnBotWaves(CancellationToken cancellationToken)
+	public async Task SpawnBotWaves(CancellationToken cancellationToken)
 	{
 		if (!_initialized ||
 			_waveSpawnOngoing ||
@@ -129,47 +135,49 @@ public class BotSpawnController([NotNull] DiContainer container) : IBotSpawnCont
 		
 		_waveSpawnPrevTime = Time.time;
 		_waveSpawnOngoing = true;
-		
-		// Spawn all queued bot waves
-		var hasWavesToSpawn = true;
-		while (hasWavesToSpawn && !cancellationToken.IsCancellationRequested)
+		try
 		{
-			hasWavesToSpawn = false;
-			
-			for (int i = _spawnServices.Count - 1; i >= 0; i--)
+			// Spawn all queued bot waves
+			var hasWavesToSpawn = true;
+			while (hasWavesToSpawn && !cancellationToken.IsCancellationRequested)
 			{
-				if (cancellationToken.IsCancellationRequested) return;
-				IBotSpawnService service = _spawnServices[i];
-				
-				try
+				hasWavesToSpawn = false;
+				for (int i = _spawnServices.Count - 1; i >= 0; i--)
 				{
-					if (!await service.TrySpawnBotWave(cancellationToken))
+					cancellationToken.ThrowIfCancellationRequested();
+					IBotSpawnService service = _spawnServices[i];
+					try
 					{
-						continue;
+						if (!await service.TrySpawnBotWave(cancellationToken))
+						{
+							continue;
+						}
+					}
+					catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+					{
+						return;
+					}
+					catch (Exception ex)
+					{
+						DonutsRaidManager.Logger.LogException(nameof(DonutsRaidManager), nameof(SpawnBotWaves), ex);
+					}
+
+					hasWavesToSpawn = true;
+					if (i > 0)
+					{
+						await CoroutineTaskScheduler.Delay(MS_DELAY_BETWEEN_SPAWNS, cancellationToken);
 					}
 				}
-				catch (OperationCanceledException) {}
-				catch (Exception ex)
+
+				if (hasWavesToSpawn)
 				{
-					DonutsRaidManager.Logger.LogException(nameof(DonutsRaidManager), nameof(SpawnBotWaves), ex);
+					await CoroutineTaskScheduler.Delay(MS_DELAY_BETWEEN_SPAWNS, cancellationToken);
 				}
-				
-				hasWavesToSpawn = true;
-				
-				if (i > 0)
-				{
-					await UniTask.Delay(MS_DELAY_BETWEEN_SPAWNS, cancellationToken: cancellationToken);
-					if (cancellationToken.IsCancellationRequested) return;
-				}
-			}
-			
-			if (hasWavesToSpawn)
-			{
-				await UniTask.Delay(MS_DELAY_BETWEEN_SPAWNS, cancellationToken: cancellationToken);
-				if (cancellationToken.IsCancellationRequested) return;
 			}
 		}
-		
-		_waveSpawnOngoing = false;
+		finally
+		{
+			_waveSpawnOngoing = false;
+		}
 	}
 }

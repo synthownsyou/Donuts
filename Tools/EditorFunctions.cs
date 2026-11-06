@@ -1,7 +1,6 @@
 ﻿using BepInEx.Logging;
 using Comfort.Common;
 using Cysharp.Text;
-using Cysharp.Threading.Tasks;
 using Donuts.Models;
 using Donuts.Utils;
 using EFT;
@@ -9,6 +8,7 @@ using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Threading.Tasks;
 using UnityEngine;
 using static Donuts.DefaultPluginVars;
 
@@ -191,7 +191,7 @@ internal static class EditorFunctions
 		DonutsHelper.DisplayNotification(sb.ToString(), Color.yellow);
 	}
 
-	internal static async UniTask WriteToJsonFile(string directoryPath)
+	internal static async Task WriteToJsonFile(string directoryPath)
 	{
 		DonutsRaidManager raidManager = MonoBehaviourSingleton<DonutsRaidManager>.Instance;
 		if (raidManager == null || raidManager.BotConfigService == null)
@@ -228,13 +228,11 @@ internal static class EditorFunctions
 		// Write json to file with filename == Donuts.DonutComponent.mapLocation + random number
 		string jsonFilePath = Path.Combine(directoryPath, "patterns", fileName);
 
-		await UniTask.SwitchToThreadPool();
 		using (var writer = new StreamWriter(jsonFilePath, false))
 		{
 			await writer.WriteAsync(json);
 		}
-		await UniTask.SwitchToMainThread(PlayerLoopTiming.Update);
-
+		await CoroutineTaskScheduler.SwitchToMainThread();
 		DonutsHelper.DisplayNotification($"Donuts: Wrote Json File to: {jsonFilePath}", Color.yellow);
 	}
 }

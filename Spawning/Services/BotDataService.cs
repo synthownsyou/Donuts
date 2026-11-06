@@ -1,7 +1,6 @@
 ﻿using BepInEx.Logging;
 using Comfort.Common;
 using Cysharp.Text;
-using Cysharp.Threading.Tasks;
 using Donuts.Spawning.Models;
 using Donuts.Utils;
 using EFT;
@@ -11,6 +10,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using UnityEngine;
 using Donuts.Compat;
 using Random = UnityEngine.Random;
@@ -26,10 +26,10 @@ public interface IBotDataService : IServiceSpawnType, IDisposable
 	public string GroupChance { get; }
 	public ReadOnlyCollection<BotDifficulty> BotDifficulties { get; }
 	
-	[NotNull] IUniTaskAsyncEnumerable<BotGenerationProgress> CreateStartingBotGenerationStream(CancellationToken cancellationToken);
-	UniTask<(bool success, PrepBotInfo prepBotInfo)> TryGenerateBotProfiles(BotDifficulty difficulty, int groupSize,
+	[NotNull] IAsyncEnumerable<BotGenerationProgress> CreateStartingBotGenerationStream(CancellationToken cancellationToken);
+	Task<(bool success, PrepBotInfo prepBotInfo)> TryGenerateBotProfiles(BotDifficulty difficulty, int groupSize,
 		bool saveToCache = true, CancellationToken cancellationToken = default);
-	UniTask ReplenishBotCache(CancellationToken cancellationToken);
+	Task ReplenishBotCache(CancellationToken cancellationToken);
 	[CanBeNull] PrepBotInfo FindCachedBotData(BotDifficulty difficulty, int targetCount);
 	void RemoveFromBotCache(PrepBotInfo.Key key);
 	[CanBeNull] BotWave GetBotWaveToSpawn();
@@ -51,8 +51,8 @@ public abstract class BotDataService : IBotDataService, ITokenGetter
 	private const int NUMBER_OF_GROUPS_TO_REPLENISH = 3;
 	private const int FRAME_DELAY_BETWEEN_REPLENISH = 10;
 	
-	private readonly TimeoutController _timeoutController;
 	private static readonly TimeSpan s_timeout = TimeSpan.FromSeconds(5);
+	private readonly CancellationToken _raidCancellationToken;
 	private CancellationToken _sharedToken;
 	
 	private readonly BotCreationDataCache _botCache = new(INITIAL_BOT_CACHE_SIZE);
@@ -86,7 +86,8 @@ public abstract class BotDataService : IBotDataService, ITokenGetter
 	{
 		this.configService = configService;
 		logger = DonutsRaidManager.Logger;
-		_timeoutController = new TimeoutController(Singleton<DonutsRaidManager>.Instance.OnDestroyTokenSource);
+		_raidCancellationToken = Singleton<DonutsRaidManager>.Instance.OnDestroyTokenSource.Token;
+		_sharedToken = _raidCancellationToken;
 		_botCreator = Singleton<IBotGame>.Instance.BotsController.BotSpawner._botCreator;
 		
 		RegisterEventBindings();
@@ -139,7 +140,7 @@ public abstract class BotDataService : IBotDataService, ITokenGetter
 	
 	void IDisposable.Dispose()
 	{
-		_timeoutController?.Dispose();
+		_sharedToken = new CancellationToken(canceled: true);
 	}
 	
 	/// <summary>
@@ -163,7 +164,7 @@ public abstract class BotDataService : IBotDataService, ITokenGetter
 	/// <summary>
 	/// Creates an asynchronous stream for generating the starting bots.
 	/// </summary>
-	public IUniTaskAsyncEnumerable<BotGenerationProgress> CreateStartingBotGenerationStream(CancellationToken cancellationToken)
+	public IAsyncEnumerable<BotGenerationProgress> CreateStartingBotGenerationStream(CancellationToken cancellationToken)
 	{
 		if (_startingBotsToGenerate == -1)
 		{
@@ -217,13 +218,13 @@ public abstract class BotDataService : IBotDataService, ITokenGetter
 	
 	public abstract BotDifficulty GetBotDifficulty();
 	
-	public async UniTask<(bool success, PrepBotInfo prepBotInfo)> TryGenerateBotProfiles(
+	public async Task<(bool success, PrepBotInfo prepBotInfo)> TryGenerateBotProfiles(
 		BotDifficulty difficulty,
 		int groupSize,
 		bool saveToCache = true,
 		CancellationToken cancellationToken = default)
 	{
-		await UniTask.SwitchToMainThread(PlayerLoopTiming.Update, cancellationToken);
+		await CoroutineTaskScheduler.SwitchToMainThread(cancellationToken);
 		if (cancellationToken.IsCancellationRequested)
 		{
 			return (false, null);
@@ -240,15 +241,16 @@ public abstract class BotDataService : IBotDataService, ITokenGetter
 			logger.LogDebugDetailed(sb.ToString(), GetType().Name, nameof(TryGenerateBotProfiles));
 		}
 		
+		CancellationTokenSource timeoutSource = null;
 		try
 		{
-			CancellationToken timeoutToken = _timeoutController.Timeout(s_timeout);
-			_sharedToken = timeoutToken;
+			timeoutSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _raidCancellationToken);
+			timeoutSource.CancelAfter(s_timeout);
+			_sharedToken = timeoutSource.Token;
 			
 			var botProfileData = new GetProfileDataParams(side, wildSpawnType, difficulty, 0f, default, false);
 			var botCreationData = await BotCreationData.Create(botProfileData, _botCreator, groupSize, token: this);
-			
-			_sharedToken = cancellationToken;
+			await CoroutineTaskScheduler.SwitchToMainThread(cancellationToken);
 			
 			if (botCreationData?.Profiles == null || botCreationData.Profiles.Count == 0)
 			{
@@ -275,7 +277,9 @@ public abstract class BotDataService : IBotDataService, ITokenGetter
 		}
 		catch (OperationCanceledException)
 		{
-			if (_timeoutController.IsTimeout())
+			if (!cancellationToken.IsCancellationRequested &&
+				!_raidCancellationToken.IsCancellationRequested &&
+				timeoutSource?.IsCancellationRequested == true)
 			{
 				if (DefaultPluginVars.debugLogging.Value)
 				{
@@ -296,7 +300,8 @@ public abstract class BotDataService : IBotDataService, ITokenGetter
 		}
 		finally
 		{
-			_timeoutController.Reset();
+			_sharedToken = cancellationToken;
+			timeoutSource?.Dispose();
 		}
 		
 		return (false, null);
@@ -305,7 +310,7 @@ public abstract class BotDataService : IBotDataService, ITokenGetter
 	protected abstract WildSpawnType GetWildSpawnType();
 	protected abstract EPlayerSide GetPlayerSide(WildSpawnType wildSpawnType);
 	
-	public async UniTask ReplenishBotCache(CancellationToken cancellationToken)
+	public async Task ReplenishBotCache(CancellationToken cancellationToken)
 	{
 		try
 		{
@@ -330,7 +335,7 @@ public abstract class BotDataService : IBotDataService, ITokenGetter
 				if (cancellationToken.IsCancellationRequested) return;
 				if (!success)
 				{
-					await UniTask.DelayFrame(FRAME_DELAY_BETWEEN_REPLENISH, cancellationToken: cancellationToken);
+					await CoroutineTaskScheduler.DelayFrames(FRAME_DELAY_BETWEEN_REPLENISH, cancellationToken);
 					continue;
 				}
 				
@@ -346,7 +351,7 @@ public abstract class BotDataService : IBotDataService, ITokenGetter
 					logger.LogDebugDetailed(sb.ToString(), GetType().Name, nameof(ReplenishBotCache));
 				}
 				
-				await UniTask.DelayFrame(FRAME_DELAY_BETWEEN_REPLENISH, cancellationToken: cancellationToken);
+				await CoroutineTaskScheduler.DelayFrames(FRAME_DELAY_BETWEEN_REPLENISH, cancellationToken);
 			}
 			
 			ResetReplenishTimer();

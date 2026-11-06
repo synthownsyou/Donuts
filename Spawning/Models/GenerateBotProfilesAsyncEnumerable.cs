@@ -1,8 +1,9 @@
-using Cysharp.Threading.Tasks;
 using Donuts.Spawning.Services;
 using Donuts.Utils;
 using JetBrains.Annotations;
+using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Donuts.Spawning.Models;
 
@@ -12,9 +13,9 @@ public class GenerateBotProfilesAsyncEnumerable(
 	int minGroupSize,
 	int maxGroupSize,
 	CancellationToken token)
-	: IUniTaskAsyncEnumerable<BotGenerationProgress>
+	: IAsyncEnumerable<BotGenerationProgress>
 {
-	public IUniTaskAsyncEnumerator<BotGenerationProgress> GetAsyncEnumerator(
+	public IAsyncEnumerator<BotGenerationProgress> GetAsyncEnumerator(
 		CancellationToken cancellationToken = default)
 	{
 		return new AsyncEnumerator(dataService, maxBotsToGenerate, minGroupSize, maxGroupSize, token);
@@ -26,16 +27,16 @@ public class GenerateBotProfilesAsyncEnumerable(
 		int minGroupSize,
 		int maxGroupSize,
 		CancellationToken token)
-		: IUniTaskAsyncEnumerator<BotGenerationProgress>
+		: IAsyncEnumerator<BotGenerationProgress>
 	{
 		public BotGenerationProgress Current { get; } = new(maxBotsToGenerate);
 		
-		public UniTask DisposeAsync()
+		public ValueTask DisposeAsync()
 		{
-			return UniTask.CompletedTask;
+			return default;
 		}
 		
-		public async UniTask<bool> MoveNextAsync()
+		public async ValueTask<bool> MoveNextAsync()
 		{
 			if (token.IsCancellationRequested || Current.TotalBotsGenerated >= maxBotsToGenerate)
 			{

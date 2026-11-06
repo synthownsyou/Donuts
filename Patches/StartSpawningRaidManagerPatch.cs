@@ -33,6 +33,6 @@ internal class StartSpawningRaidManagerPatch : ModulePatch
 			return;
 		}
 			
-		raidManager.StartBotSpawning().Forget();
+		_ = raidManager.StartBotSpawning();
 	}
 }

@@ -1,6 +1,5 @@
 ﻿using BepInEx.Logging;
 using Cysharp.Text;
-using Cysharp.Threading.Tasks;
 using Donuts.Utils.Logger;
 using EFT.Communications;
 using JetBrains.Annotations;

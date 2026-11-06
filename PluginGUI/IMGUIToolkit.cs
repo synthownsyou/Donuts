@@ -1,4 +1,4 @@
-﻿using Cysharp.Threading.Tasks;
+using Donuts.Utils;
 using Donuts.Models;
 using System;
 using System.Collections.Generic;
@@ -320,8 +320,7 @@ public static class ImGUIToolkit
 				_newKeybinds[keybindId] = e.keyCode;
 				_keybindStates[keybindId] = false;
 				currentKey = e.keyCode;
-				// TODO: Verify using UniTask instead of Task works here, otherwise revert
-				UniTask.Delay(1000, true).ContinueWith(() => _isSettingKeybind = false);
+				ReleaseKeybindCaptureAfterDelay();
 			}
 		}
 
@@ -331,6 +330,12 @@ public static class ImGUIToolkit
 	}
 
 	public static bool IsSettingKeybind() => _isSettingKeybind;
+
+	private static async void ReleaseKeybindCaptureAfterDelay()
+	{
+		await CoroutineTaskScheduler.Delay(1000);
+		_isSettingKeybind = false;
+	}
 
 	private static void ShowTooltip()
 	{

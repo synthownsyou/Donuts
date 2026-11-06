@@ -51,14 +51,6 @@
       <HintPath>Libs\DissonanceVoip.dll</HintPath>
       <Private>false</Private>
     </Reference>
-    <Reference Include="DOTween">
-      <HintPath>Libs\DOTween.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="DOTween.Modules">
-      <HintPath>Libs\DOTween.Modules.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>Libs\Newtonsoft.Json.dll</HintPath>
       <Private>false</Private>
@@ -85,34 +77,6 @@
     </Reference>
     <Reference Include="spt-singleplayer">
       <HintPath>Libs\spt-singleplayer.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="UniTask">
-      <HintPath>Libs\UniTask.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="UniTask.DOTween">
-      <HintPath>Libs\UniTask.DOTween.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="UniTask.Linq">
-      <HintPath>Libs\UniTask.Linq.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="UniTask.TextMeshPro">
-      <HintPath>Libs\UniTask.TextMeshPro.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Unity.Burst">
-      <HintPath>Libs\Unity.Burst.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Unity.Collections">
-      <HintPath>Libs\Unity.Collections.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Unity.Mathematics">
-      <HintPath>Libs\Unity.Mathematics.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Unity.TextMeshPro">
@@ -167,14 +131,6 @@
       <HintPath>Libs\UnityEngine.UnityWebRequestModule.dll</HintPath>
       <Private>false</Private>
     </Reference>
-    <Reference Include="UnityToolkit">
-      <HintPath>Libs\UnityToolkit.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="ZString">
-      <HintPath>Libs\ZString.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
   </ItemGroup>
 
   <ItemGroup>
@@ -186,10 +142,12 @@
 
   <ItemGroup>
     <Compile Remove="FikaBridge\**" />
+    <Compile Remove="Tools\AssemblyReferenceCheck\**" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Remove="FikaBridge\**" />
+    <EmbeddedResource Remove="Tools\AssemblyReferenceCheck\**" />
   </ItemGroup>
 
 </Project>

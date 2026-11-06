@@ -1,4 +1,3 @@
-﻿using Cysharp.Threading.Tasks;
 using Donuts.Models;
 using Donuts.Utils;
 using EFT;
@@ -47,9 +46,7 @@ internal class DonutsGizmos
 
 		if (_isGizmoEnabled && !_gizmoUpdateTaskStarted)
 		{
-			//RefreshGizmoDisplay();
-			//_gizmoUpdateCoroutine = _monoBehaviourRef.StartCoroutine(UpdateGizmoSpheresCoroutine());
-			UpdateGizmoSpheres().Forget();
+			UpdateGizmoSpheres();
 		}
 		else if (!_isGizmoEnabled && _gizmoUpdateTaskStarted)
 		{
@@ -96,16 +93,26 @@ internal class DonutsGizmos
 		_cts.Dispose();
 	}
 
-	private async UniTaskVoid UpdateGizmoSpheres()
+	private async void UpdateGizmoSpheres()
 	{
 		_gizmoUpdateTaskStarted = true;
-		while (_isGizmoEnabled)
+		try
 		{
-			RefreshGizmoDisplay();
-			await UniTask.Delay(_updateInterval, cancellationToken: _updateMarkerCts.Token, cancelImmediately: true);
+			while (_isGizmoEnabled)
+			{
+				RefreshGizmoDisplay();
+				await CoroutineTaskScheduler.Delay((int)_updateInterval.TotalMilliseconds, _updateMarkerCts.Token);
+			}
 		}
-		ClearGizmoMarkers();
-		_gizmoUpdateTaskStarted = false;
+		catch (OperationCanceledException)
+		{
+			// Expected when gizmos are disabled or the raid ends.
+		}
+		finally
+		{
+			ClearGizmoMarkers();
+			_gizmoUpdateTaskStarted = false;
+		}
 	}
 
 	private void RefreshGizmoDisplay()
@@ -192,14 +199,21 @@ internal class DonutsGizmos
 			ResetCts(ref _resetMarkerCts);
 		}
 		_willResetMarkerInfo = true;
-		ResetMarkerInfo().Forget();
+		ResetMarkerInfo();
 	}
 
-	private async UniTaskVoid ResetMarkerInfo()
+	private async void ResetMarkerInfo()
 	{
-		await UniTask.Delay(_markerResetTime, cancellationToken: _resetMarkerCts.Token, cancelImmediately: true);
-		_displayedMarkerInfo.Clear();
-		_willResetMarkerInfo = false;
+		try
+		{
+			await CoroutineTaskScheduler.Delay((int)_markerResetTime.TotalMilliseconds, _resetMarkerCts.Token);
+			_displayedMarkerInfo.Clear();
+			_willResetMarkerInfo = false;
+		}
+		catch (OperationCanceledException)
+		{
+			// Expected when another marker supersedes this reset or the raid ends.
+		}
 	}
 
 	[CanBeNull]

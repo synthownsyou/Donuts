@@ -1,8 +1,6 @@
 ﻿using BepInEx.Logging;
 using Comfort.Common;
 using Cysharp.Text;
-using Cysharp.Threading.Tasks;
-using Cysharp.Threading.Tasks.Linq;
 using Donuts.Spawning;
 using Donuts.Spawning.Controllers;
 using Donuts.Spawning.Services;
@@ -16,6 +14,7 @@ using System;
 using System.Collections;
 using System.Collections.ObjectModel;
 using System.Threading;
+using System.Threading.Tasks;
 using UnityEngine;
 using Donuts.Compat;
 
@@ -144,7 +143,7 @@ public class DonutsRaidManager : MonoBehaviourSingleton<DonutsRaidManager>
 	
 	// ReSharper disable once Unity.IncorrectMethodSignature
 	[UsedImplicitly]
-	private async UniTaskVoid Start()
+	private async void Start()
 	{
 		await Initialize();
 	}
@@ -211,7 +210,7 @@ public class DonutsRaidManager : MonoBehaviourSingleton<DonutsRaidManager>
 		Logger.LogDebugDetailed("Raid manager enabled", nameof(DonutsRaidManager), nameof(Enable));
 	}
 	
-	private async UniTask Initialize()
+	private async Task Initialize()
 	{
 		Logger.LogDebugDetailed("Started initializing raid manager", nameof(DonutsRaidManager), nameof(Initialize));
 		
@@ -279,22 +278,28 @@ public class DonutsRaidManager : MonoBehaviourSingleton<DonutsRaidManager>
 		}
 	}
 	
-	public async UniTaskVoid StartBotSpawning()
+	public async Task StartBotSpawning()
 	{
-		await UniTask.Delay(MS_DELAY_BEFORE_STARTING_BOTS_SPAWN, cancellationToken: _onDestroyToken);
-		if (_onDestroyToken.IsCancellationRequested)
+		try
 		{
-			return;
+			await CoroutineTaskScheduler.Delay(MS_DELAY_BEFORE_STARTING_BOTS_SPAWN, _onDestroyToken);
+			while (!_onDestroyToken.IsCancellationRequested)
+			{
+				await UpdateAsync();
+				await CoroutineTaskScheduler.NextFrame(_onDestroyToken);
+			}
 		}
-		
-		UniTaskAsyncEnumerable.EveryUpdate()
-			// Updates are skipped while a task is being awaited within ForEachAwaitAsync()
-			// TODO: Use 'await foreach' instead once we get C# 8.0 in SPT 3.11
-			.ForEachAwaitAsync(async _ => await UpdateAsync(), _onDestroyToken)
-			.Forget();
+		catch (OperationCanceledException)
+		{
+			// Expected when the raid manager is destroyed.
+		}
+		catch (Exception ex)
+		{
+			Logger.LogException(nameof(DonutsRaidManager), nameof(StartBotSpawning), ex);
+		}
 	}
 	
-	private static async UniTask UpdateAsync()
+	private static async Task UpdateAsync()
 	{
 		DonutsRaidManager raidManager = Instance;
 		if (raidManager == null)

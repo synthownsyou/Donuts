@@ -25,8 +25,6 @@ $sources = @{
     "bsg.console.core.dll"                 = "EscapeFromTarkov_Data\Managed"
     "Comfort.dll"                          = "EscapeFromTarkov_Data\Managed"
     "DissonanceVoip.dll"                   = "EscapeFromTarkov_Data\Managed"
-    "DOTween.dll"                          = "EscapeFromTarkov_Data\Managed"
-    "DOTween.Modules.dll"                  = "EscapeFromTarkov_Data\Managed"
     "Newtonsoft.Json.dll"                  = "EscapeFromTarkov_Data\Managed"
     "Sirenix.Serialization.dll"            = "EscapeFromTarkov_Data\Managed"
     "Unity.Burst.dll"                      = "EscapeFromTarkov_Data\Managed"
@@ -54,14 +52,6 @@ $sources = @{
     "spt-singleplayer.dll"                 = "BepInEx\plugins\spt"
     # SPT patchers
     "spt-prepatch.dll"                     = "BepInEx\patchers"
-    # UnityToolkit
-    "UniTask.dll"                          = "BepInEx\plugins\UnityToolkit"
-    "UniTask.DOTween.dll"                  = "BepInEx\plugins\UnityToolkit"
-    "UniTask.Linq.dll"                     = "BepInEx\plugins\UnityToolkit"
-    "UniTask.TextMeshPro.dll"              = "BepInEx\plugins\UnityToolkit"
-    "Unity.Collections.dll"                = "BepInEx\plugins\UnityToolkit"
-    "UnityToolkit.dll"                     = "BepInEx\plugins\UnityToolkit"
-    "ZString.dll"                          = "BepInEx\plugins\UnityToolkit"
 }
 
 $copied = 0

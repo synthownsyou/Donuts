@@ -1,5 +1,4 @@
 using Cysharp.Text;
-using Cysharp.Threading.Tasks;
 using Donuts.Spawning.Models;
 using Donuts.Spawning.Services;
 using Donuts.Utils;
@@ -7,14 +6,15 @@ using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using Donuts.Compat;
 
 namespace Donuts.Spawning.Controllers;
 
 public interface IBotDataController : IDisposable
 {
-	UniTask<bool> Initialize(CancellationToken cancellationToken);
-	UniTask ReplenishBotCache(CancellationToken cancellationToken);
+	Task<bool> Initialize(CancellationToken cancellationToken);
+	Task ReplenishBotCache(CancellationToken cancellationToken);
 }
 
 public class BotDataController(DiContainer container) : IBotDataController
@@ -32,7 +32,7 @@ public class BotDataController(DiContainer container) : IBotDataController
 		}
 	}
 	
-	public async UniTask<bool> Initialize(CancellationToken cancellationToken)
+	public async Task<bool> Initialize(CancellationToken cancellationToken)
 	{
 		if (_initialized)
 		{
@@ -58,7 +58,7 @@ public class BotDataController(DiContainer container) : IBotDataController
 		return true;
 	}
 	
-	private async UniTask ResolveServices(CancellationToken cancellationToken)
+	private async Task ResolveServices(CancellationToken cancellationToken)
 	{
 		string forceAllBotType = DefaultPluginVars.forceAllBotType.Value;
 		
@@ -83,7 +83,7 @@ public class BotDataController(DiContainer container) : IBotDataController
 		}
 	}
 	
-	private async UniTask SetupDataService(IBotDataService dataService, CancellationToken cancellationToken)
+	private async Task SetupDataService(IBotDataService dataService, CancellationToken cancellationToken)
 	{
 		if (!_dataServices.Contains(dataService))
 		{
@@ -92,7 +92,7 @@ public class BotDataController(DiContainer container) : IBotDataController
 		}
 	}
 	
-	private static async UniTask ProcessStartingBotGeneration(IBotDataService dataService, CancellationToken cancellationToken)
+	private static async Task ProcessStartingBotGeneration(IBotDataService dataService, CancellationToken cancellationToken)
 	{
 		string spawnTypeString = dataService.SpawnType.LocalizedPlural();
 		var message = $"Donuts: Generating {spawnTypeString}...";
@@ -101,6 +101,7 @@ public class BotDataController(DiContainer container) : IBotDataController
 		
 		while (true)
 		{
+			cancellationToken.ThrowIfCancellationRequested();
 			bool finishedGeneration = await GenerateStartingBots(message, spawnTypeString, dataService, cancellationToken);
 			if (finishedGeneration)
 			{
@@ -109,16 +110,16 @@ public class BotDataController(DiContainer container) : IBotDataController
 		}
 		
 		EventBus.Raise(BotGenStatusChangeEvent.Create(message, progress: 1));
-		await UniTask.Delay(1500, cancellationToken: cancellationToken);
+		await CoroutineTaskScheduler.Delay(1500, cancellationToken);
 	}
 	
-	private static async UniTask<bool> GenerateStartingBots(
+	private static async Task<bool> GenerateStartingBots(
 		string statusMessage,
 		string spawnType,
 		IBotDataService dataService,
 		CancellationToken cancellationToken)
 	{
-		IUniTaskAsyncEnumerator<BotGenerationProgress> enumerator = dataService
+		IAsyncEnumerator<BotGenerationProgress> enumerator = dataService
 			.CreateStartingBotGenerationStream(cancellationToken)
 			.GetAsyncEnumerator(cancellationToken);
 		
@@ -143,7 +144,7 @@ public class BotDataController(DiContainer container) : IBotDataController
 				using Utf8ValueStringBuilder sb = ZString.CreateUtf8StringBuilder();
 				sb.AppendFormat("Donuts: Generating {0} timed out! Skipping in {1}...", spawnType, i);
 				EventBus.Raise(BotGenStatusChangeEvent.Create(sb.ToString()));
-				await UniTask.Delay(1000, cancellationToken: cancellationToken);
+				await CoroutineTaskScheduler.Delay(1000, cancellationToken);
 			}
 		}
 		catch (Exception ex)
@@ -158,7 +159,7 @@ public class BotDataController(DiContainer container) : IBotDataController
 		return false;
 	}
 	
-	public async UniTask ReplenishBotCache(CancellationToken cancellationToken)
+	public async Task ReplenishBotCache(CancellationToken cancellationToken)
 	{
 		if (!_initialized || _replenishBotCacheOngoing)
 		{
@@ -166,22 +167,25 @@ public class BotDataController(DiContainer container) : IBotDataController
 		}
 		
 		_replenishBotCacheOngoing = true;
-			
-		for (int i = _dataServices.Count - 1; i >= 0; i--)
+		try
 		{
-			IBotDataService service = _dataServices[i];
-			try
+			for (int i = _dataServices.Count - 1; i >= 0; i--)
 			{
-				await service.ReplenishBotCache(cancellationToken);
-			}
-			catch (OperationCanceledException) {}
-			catch (Exception ex)
-			{
-				DonutsRaidManager.Logger.LogException(nameof(DonutsRaidManager), nameof(ReplenishBotCache), ex);
+				IBotDataService service = _dataServices[i];
+				try
+				{
+					await service.ReplenishBotCache(cancellationToken);
+				}
+				catch (OperationCanceledException) {}
+				catch (Exception ex)
+				{
+					DonutsRaidManager.Logger.LogException(nameof(DonutsRaidManager), nameof(ReplenishBotCache), ex);
+				}
 			}
 		}
-		
-		_replenishBotCacheOngoing = false;
-		
+		finally
+		{
+			_replenishBotCacheOngoing = false;
+		}
 	}
 }

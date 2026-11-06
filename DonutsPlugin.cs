@@ -2,11 +2,11 @@
 using BepInEx.Bootstrap;
 using BepInEx.Configuration;
 using BepInEx.Logging;
-using Cysharp.Threading.Tasks;
 using Donuts.Models;
 using Donuts.PluginGUI;
 using Donuts.Spawning.Utils;
 using Donuts.Tools;
+using Donuts.Utils;
 using EFT.UI;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using UnityEngine;
 using Donuts.Compat;
 using SPT.Reflection.Patching;
@@ -48,7 +49,9 @@ public class DonutsPlugin : BaseUnityPlugin
 		try
 		{
 			InitializePlugin();
+			CoroutineTaskScheduler.Initialize(gameObject);
 			await SetupScenariosUI();
+			await CoroutineTaskScheduler.SwitchToMainThread();
 			s_pluginGUIComponent = gameObject.AddComponent<PluginGUIComponent>();
 			DonutsConfiguration.ExportConfig();
 			_initComplete = true;
@@ -100,10 +103,7 @@ public class DonutsPlugin : BaseUnityPlugin
 		}
 		if (IsKeyPressed(DefaultPluginVars.WriteToFileKey.Value) && !_isWritingToFile)
 		{
-			_isWritingToFile = true;
-			EditorFunctions.WriteToJsonFile(DirectoryPath)
-				.ContinueWith(() => _isWritingToFile = false)
-				.Forget();
+			WriteSpawnMarkers();
 		}
 		if (IsKeyPressed(DefaultPluginVars.DeleteSpawnMarkerKey.Value))
 		{
@@ -127,7 +127,24 @@ public class DonutsPlugin : BaseUnityPlugin
 		}
 	}
 	
-	private static async UniTask SetupScenariosUI()
+	private async void WriteSpawnMarkers()
+	{
+		_isWritingToFile = true;
+		try
+		{
+			await EditorFunctions.WriteToJsonFile(DirectoryPath);
+		}
+		catch (Exception ex)
+		{
+			Logger.LogError($"Failed to write spawn markers: {ex}");
+		}
+		finally
+		{
+			_isWritingToFile = false;
+		}
+	}
+
+	private static async Task SetupScenariosUI()
 	{
 		await LoadDonutsScenarios();
 		
@@ -145,7 +162,7 @@ public class DonutsPlugin : BaseUnityPlugin
 			options: DefaultPluginVars.scavScenarioCombinedArray);
 	}
 	
-	private static async UniTask LoadDonutsScenarios()
+	private static async Task LoadDonutsScenarios()
 	{
 		// TODO: Write a null check in case the files are missing and generate new defaults
 		
@@ -167,7 +184,7 @@ public class DonutsPlugin : BaseUnityPlugin
 		}
 	}
 	
-	private static async UniTask<List<Folder>> LoadFoldersAsync([NotNull] string filePath)
+	private static async Task<List<Folder>> LoadFoldersAsync([NotNull] string filePath)
 	{
 		if (!File.Exists(filePath))
 		{
