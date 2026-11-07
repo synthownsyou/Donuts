@@ -127,6 +127,7 @@ public class BotSpawnController([NotNull] DiContainer container) : IBotSpawnCont
 	public async Task SpawnBotWaves(CancellationToken cancellationToken)
 	{
 		if (!_initialized ||
+			!_hasSpawnedStartingBots ||
 			_waveSpawnOngoing ||
 			Time.time < _waveSpawnPrevTime + SPAWN_INTERVAL_SECONDS)
 		{

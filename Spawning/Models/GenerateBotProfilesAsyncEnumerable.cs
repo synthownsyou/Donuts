@@ -43,13 +43,14 @@ public class GenerateBotProfilesAsyncEnumerable(
 				return false;
 			}
 			
-			int groupSize = BotHelper.GetBotGroupSize(dataService.GroupChance, minGroupSize, maxGroupSize,
-				Current.maxBotsToGenerate - Current.TotalBotsGenerated);
+			int remainingBots = Current.maxBotsToGenerate - Current.TotalBotsGenerated;
+			int groupSize = BotHelper.GetBotGroupSize(dataService.GroupChance, minGroupSize, maxGroupSize, remainingBots);
 			
 			(bool success, PrepBotInfo prepBotInfo) = await dataService.TryGenerateBotProfiles(
 				dataService.BotDifficulties.PickRandomElement(),
 				groupSize,
 				saveToCache: false,
+				requestType: BotGenerationRequestType.StartingCache,
 				cancellationToken: token);
 			
 			if (token.IsCancellationRequested)
@@ -57,11 +58,13 @@ public class GenerateBotProfilesAsyncEnumerable(
 				return false;
 			}
 			
-			if (success)
+			if (!success)
 			{
-				dataService.StartingBotsCache.Enqueue(prepBotInfo);
-				Current.Report(groupSize);
+				throw new System.InvalidOperationException("Bot profile generation returned no profiles.");
 			}
+
+			dataService.StartingBotsCache.Enqueue(prepBotInfo);
+			Current.Report(prepBotInfo.groupSize);
 			
 			return true;
 		}

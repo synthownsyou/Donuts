@@ -19,18 +19,18 @@ internal class BotStandbyTeleportPatch : ModulePatch
 	}
 	
 	[PatchPrefix]
-	private static bool PatchPrefix(BotStandBy __instance, BotStandByType ___standByType, BotOwner ___botOwner_0)
+	private static bool PatchPrefix(BotStandBy __instance, BotStandByType ___standByType, BotOwner ____owner)
 	{
-		if (!___botOwner_0.Settings.FileSettings.Mind.CAN_STAND_BY || !__instance.CanDoStandBy)
+		if (!____owner.Settings.FileSettings.Mind.CAN_STAND_BY || !__instance.CanDoStandBy)
 		{
 			return false;
 		}
-		
+
 		if (___standByType == BotStandByType.goToSave)
 		{
 			__instance.DoStay();
 		}
-		
+
 		return false;
 	}
 }

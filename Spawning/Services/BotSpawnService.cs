@@ -67,7 +67,7 @@ public abstract class BotSpawnService : IBotSpawnService
 		int count = startingBotsCache.Count;
 		if (count == 0)
 		{
-			return true;
+			return dataService.StartingGenerationComplete;
 		}
 		
 		while (count > 0 && !cancellationToken.IsCancellationRequested)
@@ -94,7 +94,7 @@ public abstract class BotSpawnService : IBotSpawnService
 			}
 		}
 		
-		return startingBotsCache.Count == 0;
+		return startingBotsCache.Count == 0 && dataService.StartingGenerationComplete;
 	}
 	
 	public async Task<bool> TrySpawnBotWave(CancellationToken cancellationToken)

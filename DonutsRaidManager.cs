@@ -50,6 +50,7 @@ public class DonutsRaidManager : MonoBehaviourSingleton<DonutsRaidManager>
 	private float _updateTimer;
 	
 	private bool _canStartRaid;
+	private bool _initializationFinished;
 
 	public BotConfigService BotConfigService { get; private set; }
 	public CancellationTokenSource OnDestroyTokenSource { get; private set; }
@@ -84,8 +85,9 @@ public class DonutsRaidManager : MonoBehaviourSingleton<DonutsRaidManager>
 			Logger.LogDebugDetailed("Bot spawning disabled, skipping DonutsRaidManager::Awake()",
 				nameof(DonutsRaidManager), nameof(Awake));
             Destroy(this);
+			return;
 		}
-		
+
 		base.Awake();
 
 		_gameWorld = Singleton<GameWorld>.Instance;
@@ -145,7 +147,21 @@ public class DonutsRaidManager : MonoBehaviourSingleton<DonutsRaidManager>
 	[UsedImplicitly]
 	private async void Start()
 	{
-		await Initialize();
+		Logger.LogWarning("DonutsRaidManager.Start() called, beginning initialization...");
+		try
+		{
+			await Initialize();
+		}
+		catch (OperationCanceledException) {}
+		catch (Exception ex)
+		{
+			Logger.LogException(nameof(DonutsRaidManager), nameof(Initialize), ex);
+		}
+		finally
+		{
+			_initializationFinished = true;
+			Logger.LogWarning($"DonutsRaidManager.Start() finished. canStartRaid={_canStartRaid}");
+		}
 	}
 	
 	private void Update()
@@ -234,34 +250,58 @@ public class DonutsRaidManager : MonoBehaviourSingleton<DonutsRaidManager>
 		var botGenStatusEventBinding = new EventBinding<BotGenStatusChangeEvent>(SetMatchmakerStatus);
 		EventBus.Register(botGenStatusEventBinding);
 		
-		Logger.LogWarning("Donuts is requesting bot profile data from the server...");
-		
-		float startTime = Time.time;
+		Logger.LogWarning("Donuts is initializing raid services and preparing bot profiles.");
+
+		float startTime = Time.realtimeSinceStartup;
 		float lastLogTime = startTime;
-		var waitInterval = new WaitForEndOfFrame();
-		
-		while (true)
+		const float maxInitWaitSeconds = 120f;
+
+		while (!_initializationFinished)
 		{
-			// Check at end of every frame
-			yield return waitInterval;
-			
-			if (_canStartRaid)
+			yield return null;
+
+			float elapsed = Time.realtimeSinceStartup - startTime;
+			if (elapsed >= maxInitWaitSeconds)
 			{
+				Logger.LogError($"Donuts initialization timed out after {maxInitWaitSeconds}s. Forcing raid to continue.");
+				_initializationFinished = true;
 				break;
 			}
-			
-			float currentTime = Time.time;
-			
-			// Log every 5 seconds instead of every second to avoid spamming logs
-			if (currentTime - lastLogTime >= 5f)
+
+			if (elapsed - (lastLogTime - startTime) >= 5f)
 			{
-				lastLogTime = currentTime;
-				Logger.LogWarning("Donuts still waiting...");
+				lastLogTime = Time.realtimeSinceStartup;
+				Logger.LogWarning($"Donuts still waiting for initialization... ({elapsed:F0}s elapsed)");
 			}
+		}
+
+		float generationWaitStarted = Time.realtimeSinceStartup;
+		float generationWaitBudget = Math.Max(0f, DefaultPluginVars.maxRaidDelay.Value);
+		while (_canStartRaid &&
+			!_botDataController.StartingGenerationFinished &&
+			Time.realtimeSinceStartup - generationWaitStarted < generationWaitBudget)
+		{
+			yield return null;
 		}
 		
 		EventBus.Deregister(botGenStatusEventBinding);
-		Logger.LogWarning("Donuts has all the bot profile data needed for raid start.");
+		if (_canStartRaid)
+		{
+			if (_botDataController.StartingGenerationFinished)
+			{
+				Logger.LogWarning("Donuts finished preparing its starting bot profiles before raid start.");
+			}
+			else
+			{
+				Logger.LogWarning(
+					$"Donuts bot profile preparation exceeded the {generationWaitBudget:0}-second loading budget. " +
+					"Continuing raid startup while the same request finishes in the background.");
+			}
+		}
+		else
+		{
+			Logger.LogWarning("Donuts initialization did not complete successfully. Continuing raid startup without Donuts spawning.");
+		}
 		
 		yield return startGameTask;
 	}

@@ -19,9 +19,9 @@ internal class MatchEndPlayerDisposePatch : ModulePatch
 {
 	protected override MethodBase GetTargetMethod()
 	{
-		// Method used by SPT for finding BaseLocalGame
 		return AccessTools.Method(typeof(BaseLocalGame<EftGamePlayerOwner>),
-			nameof(BaseLocalGame<EftGamePlayerOwner>.CleanUp));
+			nameof(BaseLocalGame<EftGamePlayerOwner>.CleanUp),
+			[typeof(IDictionary<string, Player>)]);
 	}
 
 	[PatchPrefix]

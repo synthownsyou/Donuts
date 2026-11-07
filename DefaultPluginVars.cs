@@ -394,8 +394,8 @@ internal static class DefaultPluginVars
 	
 	private static void InitAdvancedSettings()
 	{
-		maxRaidDelay = new Setting<float>("Raid Load Time Delay",
-			"Max time (in seconds) that Donuts force delays raid load so it has time to generate bot data for all starting points. This is to avoid potential bot spawn delays on raid start. This may delay Default is 60 seconds.",
+		maxRaidDelay = new Setting<float>("Raid Load Generation Budget",
+			"Maximum time (in seconds) the loading screen waits for Donuts bot profiles. If generation takes longer, the raid starts and the same request continues in the background; bots spawn as their profiles become available. Default is 60 seconds.",
 			60f, 60f, 0f, 120f);
 		
 		replenishInterval = new Setting<float>("Bot Cache Replenish Interval",
